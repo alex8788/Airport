@@ -34,7 +34,7 @@ public class AirportSystem
         showFlights(f3);
         System.out.println("------------------------\n");
 
-        // 從剛剛生成的三個看板航班中，隨機抽取一個作為該名旅客的航班
+        // 1. 從三個航班中，隨機抽一個作為該名旅客的航班
         Flight[] availableFlights = { f1, f2, f3 };
         Flight passengerFlight = availableFlights[random.nextInt(availableFlights.length)];
 

@@ -22,17 +22,17 @@ public class CheckInCounter implements Processable
         Baggage baggage = passenger.getBaggage();
         System.out.println("報到櫃檯處理中... 旅客：" + passenger.getName());
 
-        // 確認旅客姓名與機票購買者相符
-        if (!passenger.getName().equals(ticket.getOwnerName()))
+        // 確認旅客姓名與購票者相符
+        if (!(passenger.getName()).equals(ticket.getOwnerName()))
         {
-            System.out.println("報到失敗：實名制核對異常，旅客姓名與機票持有者不符！\n");
+            System.out.println("報到失敗：旅客姓名與機票持有者不符！\n");
             return;  // 中斷流程
         }
 
         // 檢查機票狀態是否為 BOOKED
         if (ticket.getState() != TicketState.BOOKED)
         {
-            System.out.println("報到失敗：機票狀態異常。\n");
+            System.out.println("報到失敗：尚未訂購機票。\n");
             return;  // 狀態不對，中斷流程
         }
 
@@ -49,7 +49,7 @@ public class CheckInCounter implements Processable
             double maxWeight = ticket.getCabinClass().getMaxBaggageWeight();
             if (baggage.getWeight() > maxWeight)
             {
-                System.out.println("報到失敗：行李過重 (" + baggage.getWeight() + "kg)，您的 " + ticket.getCabinClass() + " 艙等限制為 " + maxWeight + "kg!\n");
+                System.out.println("報到失敗：行李過重 (" + baggage.getWeight() + "kg)，您的 " + ticket.getCabinClass() + " 艙等載重上限為 " + maxWeight + "kg!\n");
                 return;  // 中斷流程
             }
         }
