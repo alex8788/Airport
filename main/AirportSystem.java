@@ -14,9 +14,9 @@ import service.SecurityCheck;
 
 public class AirportSystem
 {
-    // 1. 航班陣列，存放定期航班資訊 (一律由台北出發，6 個航班)
-    private static final String[] FLIGHT_NUMS = { "BR198", "BR159", "CI909", "CI751", "JX800", "CX421" };
-    private static final String[] DESTINATIONS = { "東京(NRT)", "首爾(ICN)", "香港(HKG)", "新加坡(SIN)", "曼谷(BKK)", "吉隆坡(KUL)" };
+    // 航班陣列，存放定期航班資訊 (一律由台北出發，6 個航班)
+    private static final String[] FLIGHT_NUMS = { "BR198", "BR159", "CI909", "CI751", "JX800", "CX421" };  // 航班編號
+    private static final String[] DESTINATIONS = { "東京(NRT)", "首爾(ICN)", "香港(HKG)", "新加坡(SIN)", "曼谷(BKK)", "吉隆坡(KUL)" };  // 目的地
     private static final int[] DURATIONS = { 200, 150, 100, 280, 220, 270 };  // 各目的地的飛行時間 (分鐘)
 
     public static void main(String[] args)
@@ -34,29 +34,48 @@ public class AirportSystem
         showFlights(f3);
         System.out.println("------------------------\n");
 
-        // 1. 從三個航班中，隨機抽一個作為該名旅客的航班
+        // 從剛剛生成的三個看板航班中，隨機抽取一個作為該名旅客的航班
         Flight[] availableFlights = { f1, f2, f3 };
         Flight passengerFlight = availableFlights[random.nextInt(availableFlights.length)];
 
-        // 2. 建立機場的各個關卡 (使用旅客被分配到的航班)
-        Processable counter = new CheckInCounter(passengerFlight);
-        Processable security = new SecurityCheck();
-        Processable gate = new BoardingGate(passengerFlight);
+        // 建立旅客的所有相關資訊
+        Passenger passenger = createPassenger(random, "John", passengerFlight);
 
-        // 3. 旅客抵達機場前，已經買好機票並整理好行李 (使用隨機抽取到的航班建立機票)
+        // 旅客開始進行機場通關流程
+        runAirportFlow(passenger, passengerFlight);
+    }
+
+    // 建立旅客物件
+    private static Passenger createPassenger(Random random, String name, Flight flight)
+    {
+        // 將 CabinClass 的所有選項轉換為陣列，並隨機抽取一個艙等
+        CabinClass[] classes = CabinClass.values();
+        CabinClass randomCabinClass = classes[random.nextInt(classes.length)];
+
+        // 旅客抵達機場前，已經買好機票並整理好行李
         Baggage baggage = new Baggage(15.5, false);  // 行李 15.5kg，無違禁品
-        Ticket ticket = new Ticket(passengerFlight.getFlightNumber(), CabinClass.ECONOMY, "John");  // 預先購買好經濟艙，姓名登記為 John
+        Ticket ticket = new Ticket(flight.getFlightNumber(), randomCabinClass, name);  // 預先購買好的機票
         
-        // 4. 旅客帶著護照、行李與機票抵達機場 (傳入 true 代表有帶護照)
-        Passenger passenger = new Passenger("John", true, baggage, ticket);
+        // 旅客帶著護照、行李與機票抵達機場
+        return new Passenger(name, true, baggage, ticket);
+    }
+
+    // 初始化機場關卡並進行通關流程
+    private static void runAirportFlow(Passenger passenger, Flight flight)
+    {
+        // 建立機場的各個關卡 (使用旅客搭乘的航班)
+        Processable counter = new CheckInCounter(flight);
+        Processable security = new SecurityCheck();
+        Processable gate = new BoardingGate(flight);
 
         // 流程開始
         System.out.println("--- 旅客抵達機場 ---");
-        System.out.println("旅客所持機票航班: " + passengerFlight.getFlightNumber());
-        System.out.println("目的地: " + passengerFlight.getDestination());
-        System.out.println("登機時間: " + passengerFlight.getBoardingTimeStr());
-        System.out.println("預計起飛時間: " + passengerFlight.getDepartureTimeStr());
-        System.out.println("預計抵達時間: " + passengerFlight.getArrivalTimeStr());
+        System.out.println("旅客所持機票航班: " + flight.getFlightNumber());
+        System.out.println("機票艙等: " + passenger.getTicket().getCabinClass());  // 新增：印出旅客隨機抽到的艙等
+        System.out.println("目的地: " + flight.getDestination());
+        System.out.println("登機時間: " + flight.getBoardingTimeStr());
+        System.out.println("預計起飛時間: " + flight.getDepartureTimeStr());
+        System.out.println("預計抵達時間: " + flight.getArrivalTimeStr());
         System.out.println("--------------------");
         
         // 第一關：報到 (櫃檯檢查行李，並為已訂位的機票分配隨機座位)
@@ -69,7 +88,7 @@ public class AirportSystem
         gate.process(passenger);
     }
 
-    // 隨機抽取當前的航班和對映的登機時間
+    // 隨機抽取航班及其對應的登機時間
     private static Flight createFlight(Random random)
     {
         int idx = random.nextInt(FLIGHT_NUMS.length);
