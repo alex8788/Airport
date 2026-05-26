@@ -6,9 +6,10 @@ import model.TicketState;
 public class SecurityCheck implements Processable {
     @Override
     public void process(Passenger passenger) {
+        // 印出處理中的旅客姓名
         System.out.println("安檢站處理中... 旅客：" + passenger.getName());
 
-        // 檢查護照是否帶了，且狀態必須是已報到
+        // 檢查護照是否有帶，且僅在已報到狀態時通過安檢
         if (passenger.getPassportNumber() == null || passenger.getPassportNumber().isEmpty()) {
             System.out.println("安檢失敗：未攜帶護照。\n");
         } else if (passenger.getTicket().getState() == TicketState.CHECKED_IN) {

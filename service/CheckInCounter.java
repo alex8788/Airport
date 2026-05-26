@@ -20,6 +20,7 @@ public class CheckInCounter implements Processable {
         System.out.println("報到櫃檯處理中... 旅客：" + passenger.getName());
 
         // 新增：檢查行李違禁品與重量 (假設限重 30kg)
+        // 若有行李，檢查違禁品與重量限制
         if (baggage != null) {
             if (baggage.hasProhibitedItems()) {
                 System.out.println("報到失敗：行李內含違禁品！\n");
@@ -32,7 +33,7 @@ public class CheckInCounter implements Processable {
         }
 
         if (ticket.getState() == TicketState.BOOKED) {
-            // 修改：呼叫航班的方法來隨機劃位
+            // 呼叫航班的方法來隨機劃位
             String newSeat = flight.assignRandomSeat();
             ticket.assignSeat(newSeat);
             ticket.setState(TicketState.CHECKED_IN);

@@ -5,6 +5,7 @@ public class Passenger extends Person {
     private final Baggage baggage;
     private final Ticket ticket; // 加入 final
 
+    // 建構子：包含護照與行李與票
     public Passenger(String name, String idNumber, String passportNumber, Baggage baggage, Ticket ticket) {
         super(name, idNumber);
         this.passportNumber = passportNumber;

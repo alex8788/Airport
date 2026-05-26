@@ -15,7 +15,7 @@ public class Flight {
     private final List<Passenger> boardedPassengers;
     private final Set<String> occupiedSeats; // 新增：記錄已被佔用的座位
 
-    // 修改建構子
+    // 建構子：初始化航班資訊與容器
     public Flight(String flightNumber, String origin, String destination, String arrivalTime) {
         this.flightNumber = flightNumber;
         this.origin = origin;
@@ -25,7 +25,7 @@ public class Flight {
         this.occupiedSeats = new HashSet<>();
     }
 
-    // 新增：隨機生成不重複座位的邏輯
+    // 隨機生成不重複座位的邏輯
     public String assignRandomSeat() {
         Random random = new Random();
         String[] seatLetters = { "A", "B", "C", "D", "E", "F" };
@@ -43,6 +43,7 @@ public class Flight {
         return generatedSeat;
     }
 
+    // 新增旅客到已登機名單並公告
     public void addPassenger(Passenger passenger) {
         boardedPassengers.add(passenger);
         System.out.println("航班 " + flightNumber + " 廣播：" + passenger.getName() + " 歡迎登機！");

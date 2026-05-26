@@ -6,7 +6,7 @@ public class Ticket {
     private String seatNumber;
     private TicketState state;
 
-    // 修改建構子
+    // 建構子：設定航班、艙等，預設座位未分配、狀態為 BOOKED
     public Ticket(String flightNumber, CabinClass cabinClass) {
         this.flightNumber = flightNumber;
         this.cabinClass = cabinClass;
