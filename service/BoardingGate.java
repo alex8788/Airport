@@ -7,7 +7,7 @@ import model.TicketState;
 
 public class BoardingGate implements Processable
 {
-    private final Flight flight;  // 加入 final
+    private final Flight flight;
 
     public BoardingGate(Flight flight)
     {
@@ -20,11 +20,11 @@ public class BoardingGate implements Processable
         Ticket ticket = passenger.getTicket();
         System.out.println("登機門處理中... 旅客：" + passenger.getName());
 
-        // 優先檢查：確認是否已完成安檢手續 (SECURITY_CLEARED)
+        // 檢查：是否已完成安檢手續 (SECURITY_CLEARED)
         if (ticket.getState() != TicketState.SECURITY_CLEARED)
         {
             System.out.println("登機失敗：請確認是否已完成報到與安檢手續。\n");
-            return;  // 狀態不對，中斷流程
+            return;  // 中斷流程
         }
 
         ticket.setState(TicketState.BOARDED);

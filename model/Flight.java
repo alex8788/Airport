@@ -10,14 +10,14 @@ import java.util.Set;
 
 public class Flight
 {
-    private final String flightNumber;
-    private final String destination;  // 新增：目的地
-    private final LocalTime boardingTime;  // 新增：登機時間
-    private final LocalTime departureTime;  // 新增：起飛時間 (由登機時間計算)
-    private final LocalTime arrivalTime;  // 新增：抵達時間 (由登機時間與飛行時間計算)
+    private final String flightNumber;  // 航班編號
+    private final String destination;  // 目的地
+    private final LocalTime boardingTime;  // 登機時間
+    private final LocalTime departureTime;  // 起飛時間 (由登機時間計算)
+    private final LocalTime arrivalTime;  // 抵達時間 (由登機時間與飛行時間計算)
 
     private final List<Passenger> boardedPassengers;  // 已登機的乘客列表
-    private final Set<String> occupiedSeats; // 記錄已被佔用的座位
+    private final Set<String> occupiedSeats; // 已被劃位的座位集合
 
     // 時間格式化工具
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
@@ -29,17 +29,17 @@ public class Flight
         this.destination = destination;
         this.boardingTime = boardingTime;
         
-        // 起飛時間設為定值：登機時間後 30 分鐘
+        // 起飛時間：設為定值（登機時間後 30 分鐘）
         this.departureTime = boardingTime.plusMinutes(30);
         
-        // 抵達時間：起飛時間 + 該目的地的飛行時間
+        // 抵達時間：起飛時間 + 飛行時間
         this.arrivalTime = this.departureTime.plusMinutes(flightDurationMinutes);
         
         this.boardedPassengers = new ArrayList<>();
         this.occupiedSeats = new HashSet<>();
     }
 
-    // 隨機生成不重複座位的邏輯
+    // 隨機生成不重複的座位
     public String assignRandomSeat()
     {
         Random random = new Random();
