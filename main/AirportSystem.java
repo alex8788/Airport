@@ -44,10 +44,10 @@ public class AirportSystem
 
         // 3. 旅客抵達機場前，已經買好機票並整理好行李 (使用隨機抽取到的航班建立機票)
         Baggage baggage = new Baggage(15.5, false);  // 行李 15.5kg，無違禁品
-        Ticket ticket = new Ticket(flightNum, CabinClass.ECONOMY);  // 預先購買好經濟艙，尚未劃位
+        Ticket ticket = new Ticket(flightNum, CabinClass.ECONOMY, "John");  // 預先購買好經濟艙，姓名登記為 John
         
         // 4. 旅客帶著護照、行李與機票抵達機場
-        Passenger passenger = new Passenger("John", "A123456789", "TW987654321", baggage, ticket);
+        Passenger passenger = new Passenger("John", "TW987654321", baggage, ticket);
 
         // 流程開始
         System.out.println("--- 旅客抵達機場 ---");

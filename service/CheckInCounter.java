@@ -22,6 +22,13 @@ public class CheckInCounter implements Processable
         Baggage baggage = passenger.getBaggage();
         System.out.println("報到櫃檯處理中... 旅客：" + passenger.getName());
 
+        // 確認旅客姓名與機票購買者相符
+        if (!passenger.getName().equals(ticket.getOwnerName()))
+        {
+            System.out.println("報到失敗：實名制核對異常，旅客姓名與機票持有者不符！\n");
+            return;  // 中斷流程
+        }
+
         // 檢查機票狀態是否為 BOOKED
         if (ticket.getState() != TicketState.BOOKED)
         {

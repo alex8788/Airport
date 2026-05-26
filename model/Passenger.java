@@ -1,18 +1,24 @@
 package model;
 
-public class Passenger extends Person
+public class Passenger
 {
+    private final String name;  // 姓名
     private final String passportNumber; // 護照號碼
-    private final Baggage baggage;
-    private final Ticket ticket; // 加入 final
+    private final Baggage baggage;  // 行李
+    private final Ticket ticket;  // 機票
 
-    // 建構子：包含護照與行李與票
-    public Passenger(String name, String idNumber, String passportNumber, Baggage baggage, Ticket ticket)
+    // 建構子：包含姓名、護照與行李與票
+    public Passenger(String name, String passportNumber, Baggage baggage, Ticket ticket)
     {
-        super(name, idNumber);
+        this.name = name;
         this.passportNumber = passportNumber;
         this.baggage = baggage;
         this.ticket = ticket;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 
     public String getPassportNumber()
