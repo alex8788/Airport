@@ -6,39 +6,50 @@ import model.Passenger;
 import model.Ticket;
 import model.TicketState;
 
-public class CheckInCounter implements Processable {
-    private final Flight flight; // 新增：需要知道航班才能劃位
+public class CheckInCounter implements Processable
+{
+    private final Flight flight;  // 新增：需要知道航班才能劃位
 
-    public CheckInCounter(Flight flight) {
+    public CheckInCounter(Flight flight)
+    {
         this.flight = flight;
     }
 
     @Override
-    public void process(Passenger passenger) {
+    public void process(Passenger passenger)
+    {
         Ticket ticket = passenger.getTicket();
         Baggage baggage = passenger.getBaggage();
         System.out.println("報到櫃檯處理中... 旅客：" + passenger.getName());
 
-        // 新增：檢查行李違禁品與重量 (假設限重 30kg)
-        // 若有行李，檢查違禁品與重量限制
-        if (baggage != null) {
-            if (baggage.hasProhibitedItems()) {
+        // 行李託運與檢查
+        if (baggage != null)
+        {
+            if (baggage.hasProhibitedItems())
+            {
                 System.out.println("報到失敗：行李內含違禁品！\n");
-                return; // 中斷流程
+                return;  // 中斷流程
             }
-            if (baggage.getWeight() > 30.0) {
-                System.out.println("報到失敗：行李過重 (" + baggage.getWeight() + "kg)，超過限制 30kg！\n");
-                return; // 中斷流程
+            
+            // 根據旅客的艙等，檢查行李是否超重
+            double maxWeight = ticket.getCabinClass().getMaxBaggageWeight();
+            if (baggage.getWeight() > maxWeight)
+            {
+                System.out.println("報到失敗：行李過重 (" + baggage.getWeight() + "kg)，您的 " + ticket.getCabinClass() + " 艙等限制為 " + maxWeight + "kg!\n");
+                return;  // 中斷流程
             }
         }
 
-        if (ticket.getState() == TicketState.BOOKED) {
-            // 呼叫航班的方法來隨機劃位
-            String newSeat = flight.assignRandomSeat();
+        if (ticket.getState() == TicketState.BOOKED)
+        {
+            // 隨機劃位
+            String newSeat = flight.assignRandomSeat(); 
             ticket.assignSeat(newSeat);
             ticket.setState(TicketState.CHECKED_IN);
             System.out.println("報到成功！行李檢查通過。已分配座位：" + ticket.getSeatNumber() + "，狀態更新為：CHECKED_IN\n");
-        } else {
+        } 
+        else
+        {
             System.out.println("報到失敗：機票狀態異常。\n");
         }
     }
