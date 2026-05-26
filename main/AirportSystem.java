@@ -1,5 +1,7 @@
 package main;
 
+import java.time.LocalTime;
+import java.util.Random;
 import model.Baggage;
 import model.CabinClass;
 import model.Flight;
@@ -14,23 +16,47 @@ public class AirportSystem
 {
     public static void main(String[] args)
     {
-        // 1. 建立包含起點、終點、時間的航班
-        Flight flightBR198 = new Flight("BR198", "台北(TPE)", "東京(NRT)", "14:30");
+        Random random = new Random();
+
+        // 1. 生成航班集合/陣列，存放定期航班資訊 (一律由台北出發)
+        String[] flightNumbers = { "BR198", "BR159", "CI909", "CI751" };
+        String[] destinations = { "東京(NRT)", "首爾(ICN)", "香港(HKG)", "新加坡(SIN)" };
+        int[] durations = { 200, 150, 100, 280 };  // 各目的地的飛行時間 (分鐘)
+
+        // 3. 模擬一開始，隨機為旅客抽取一組航班與目的地
+        int selectedIndex = random.nextInt(flightNumbers.length);
+        String chosenFlightNum = flightNumbers[selectedIndex];
+        String chosenDestination = destinations[selectedIndex];
+        int chosenDuration = durations[selectedIndex];
+
+        // 隨機生成登機時間 (時: 6~22，分: 10的倍數)
+        int randomHour = random.nextInt(17) + 6;  // 6 到 22 時
+        int randomMinute = random.nextInt(6) * 10;  // 0, 10, 20, 30, 40, 50 分
+        LocalTime randomBoardingTime = LocalTime.of(randomHour, randomMinute);
+
+        // 建立包含終點、時間的航班 (內部會自動由登機時間計算起飛與抵達時間)
+        Flight flight = new Flight(chosenFlightNum, chosenDestination, randomBoardingTime, chosenDuration);
         
         // 2. 建立機場的各個處理關卡
-        Processable counter = new CheckInCounter(flightBR198);
+        Processable counter = new CheckInCounter(flight);
         Processable security = new SecurityCheck();
-        Processable gate = new BoardingGate(flightBR198);
+        Processable gate = new BoardingGate(flight);
 
-        // 3. 旅客抵達機場前，已經買好機票並整理好行李
+        // 3. 旅客抵達機場前，已經買好機票並整理好行李 (使用隨機抽取到的航班建立機票)
         Baggage baggage = new Baggage(15.5, false);  // 行李 15.5kg，無違禁品
-        Ticket ticket = new Ticket("BR198", CabinClass.ECONOMY);  // 預先購買好經濟艙，尚未劃位
+        Ticket ticket = new Ticket(chosenFlightNum, CabinClass.ECONOMY);  // 預先購買好經濟艙，尚未劃位
         
         // 4. 旅客帶著護照、行李與機票抵達機場
         Passenger passenger = new Passenger("John", "A123456789", "TW987654321", baggage, ticket);
 
         // 流程開始
         System.out.println("--- 旅客抵達機場 ---");
+        System.out.println("旅客所持機票航班: " + flight.getFlightNumber());
+        System.out.println("目的地: " + flight.getDestination());
+        System.out.println("登機時間: " + flight.getBoardingTimeStr());
+        System.out.println("預計起飛時間: " + flight.getDepartureTimeStr());
+        System.out.println("預計抵達時間: " + flight.getArrivalTimeStr());
+        System.out.println("--------------------");
         
         // 第一關：報到 (櫃檯檢查行李，並為已訂位的機票分配隨機座位)
         counter.process(passenger);
