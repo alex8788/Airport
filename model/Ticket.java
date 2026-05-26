@@ -15,7 +15,8 @@ public class Ticket
         this.seatNumber = "Unassigned";
         this.state = TicketState.BOOKED;
     }
-public String getFlightNumber()
+    
+    public String getFlightNumber()
     {
         return flightNumber;
     }

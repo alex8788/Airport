@@ -1,27 +1,32 @@
 package model;
 
-public class Passenger extends Person {
-    private final String passportNumber; // 新增：護照號碼
+public class Passenger extends Person
+{
+    private final String passportNumber; // 護照號碼
     private final Baggage baggage;
     private final Ticket ticket; // 加入 final
 
     // 建構子：包含護照與行李與票
-    public Passenger(String name, String idNumber, String passportNumber, Baggage baggage, Ticket ticket) {
+    public Passenger(String name, String idNumber, String passportNumber, Baggage baggage, Ticket ticket)
+    {
         super(name, idNumber);
         this.passportNumber = passportNumber;
         this.baggage = baggage;
         this.ticket = ticket;
     }
 
-    public String getPassportNumber() {
+    public String getPassportNumber()
+    {
         return passportNumber;
     }
 
-    public Baggage getBaggage() {
+    public Baggage getBaggage()
+    {
         return baggage;
     }
 
-    public Ticket getTicket() {
+    public Ticket getTicket()
+    {
         return ticket;
     }
 }
