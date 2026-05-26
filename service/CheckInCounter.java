@@ -8,7 +8,7 @@ import model.TicketState;
 
 public class CheckInCounter implements Processable
 {
-    private final Flight flight;  // 新增：需要知道航班才能劃位
+    private final Flight flight;  // 知道航班才能劃位
 
     public CheckInCounter(Flight flight)
     {
@@ -21,6 +21,13 @@ public class CheckInCounter implements Processable
         Ticket ticket = passenger.getTicket();
         Baggage baggage = passenger.getBaggage();
         System.out.println("報到櫃檯處理中... 旅客：" + passenger.getName());
+
+        // 檢查機票狀態是否為 BOOKED
+        if (ticket.getState() != TicketState.BOOKED)
+        {
+            System.out.println("報到失敗：機票狀態異常。\n");
+            return;  // 狀態不對，中斷流程
+        }
 
         // 行李託運與檢查
         if (baggage != null)
@@ -40,17 +47,10 @@ public class CheckInCounter implements Processable
             }
         }
 
-        if (ticket.getState() == TicketState.BOOKED)
-        {
-            // 隨機劃位
-            String newSeat = flight.assignRandomSeat(); 
-            ticket.assignSeat(newSeat);
-            ticket.setState(TicketState.CHECKED_IN);
-            System.out.println("報到成功！行李檢查通過。已分配座位：" + ticket.getSeatNumber() + "，狀態更新為：CHECKED_IN\n");
-        } 
-        else
-        {
-            System.out.println("報到失敗：機票狀態異常。\n");
-        }
+        // 隨機劃位
+        String newSeat = flight.assignRandomSeat(); 
+        ticket.assignSeat(newSeat);
+        ticket.setState(TicketState.CHECKED_IN);
+        System.out.println("報到成功！行李檢查通過。已分配座位：" + ticket.getSeatNumber() + "，狀態更新為：CHECKED_IN\n");
     }
 }
