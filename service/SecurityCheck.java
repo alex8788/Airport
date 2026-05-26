@@ -18,8 +18,8 @@ public class SecurityCheck implements Processable
             return;  // 狀態不對，中斷流程
         }
 
-        // 檢查是否有帶護照，且僅在已報到狀態時通過安檢
-        if (passenger.getPassportNumber() == null || passenger.getPassportNumber().isEmpty())
+        // 檢查是否有帶護照
+        if (!passenger.hasPassport())
         {
             System.out.println("安檢失敗：未攜帶護照。\n");
         }

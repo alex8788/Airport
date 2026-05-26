@@ -47,7 +47,7 @@ public class AirportSystem
         Ticket ticket = new Ticket(flightNum, CabinClass.ECONOMY, "John");  // 預先購買好經濟艙，姓名登記為 John
         
         // 4. 旅客帶著護照、行李與機票抵達機場
-        Passenger passenger = new Passenger("John", "TW987654321", baggage, ticket);
+        Passenger passenger = new Passenger("John", true, baggage, ticket);
 
         // 流程開始
         System.out.println("--- 旅客抵達機場 ---");
