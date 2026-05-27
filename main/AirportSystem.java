@@ -20,13 +20,15 @@ public class AirportSystem
     private static final Random random = new Random();
 
     // 航班陣列，存放定期航班資訊 (一律由台北出發，6 個航班)
-    private static final String[] FLIGHT_NUMS = { "BR198", "BR159", "CI909", "CI751", "JX800", "CX421" };  // 航班編號
-    private static final String[] DESTINATIONS = { "東京(NRT)", "首爾(ICN)", "香港(HKG)", "新加坡(SIN)", "曼谷(BKK)", "吉隆坡(KUL)" };  // 目的地
-    private static final int[] DURATIONS = { 200, 150, 100, 280, 220, 270 };  // 各目的地的飛行時間 (分鐘)
+    private static final String[] FLIGHT_NUMS =
+    { "BR198", "BR159", "CI909", "CI751", "JX800", "CX421" }; // 航班編號
+    private static final String[] DESTINATIONS =
+    { "東京(NRT)", "首爾(ICN)", "香港(HKG)", "新加坡(SIN)", "曼谷(BKK)", "吉隆坡(KUL)" }; // 目的地
+    private static final int[] DURATIONS =
+    { 200, 150, 100, 280, 220, 270 }; // 各目的地的飛行時間 (分鐘)
 
     // 當前航班陣列
     private static final Flight[] currentFlights = new Flight[3];
-
 
     public static void main(String[] args)
     {
@@ -39,7 +41,6 @@ public class AirportSystem
         // 旅客開始進行機場通關流程
         runAirportFlow(passenger);
     }
-
 
     // 建立 3 個航班並儲存至陣列，並顯示航班資訊
     private static void initializeFlights()
@@ -64,12 +65,12 @@ public class AirportSystem
         CabinClass randomCabinClass = classes[random.nextInt(classes.length)];
 
         // 旅客抵達機場前，已經買好機票並整理好行李
-        Baggage baggage = new Baggage(15.5, false);  // 行李 15.5kg，無違禁品
-        Ticket ticket = new Ticket(flight.getFlightNumber(), randomCabinClass, name);  // 預先購買好的機票
+        Baggage baggage = new Baggage(15.5, false); // 行李 15.5kg，無違禁品
+        Ticket ticket = new Ticket(flight.getFlightNumber(), randomCabinClass, name); // 預先購買好的機票
 
         // 預先準備好的護照
         Passport passport = new Passport(name);
-        
+
         // 旅客帶著護照、行李與機票抵達機場
         return new Passenger(name, passport, baggage, ticket);
     }
@@ -77,7 +78,7 @@ public class AirportSystem
     // 初始化機場關卡並進行通關流程
     private static void runAirportFlow(Passenger passenger)
     {
-        // 根據旅客機票上的航班編號，從全域陣列中找出對應的航班物件
+        // 機票上的航班編號
         Flight flight = getFlightByNumber(passenger.getTicket().getFlightNumber());
 
         if (flight == null)
@@ -86,7 +87,7 @@ public class AirportSystem
             return;
         }
 
-        // 建立機場的各個關卡 (使用旅客搭乘的航班)
+        // 建立機場的各個關卡
         Processable counter = new CheckInCounter(flight);
         Processable security = new SecurityCheck();
         Processable gate = new BoardingGate(flight);
@@ -100,7 +101,7 @@ public class AirportSystem
         System.out.println("預計起飛時間: " + flight.getDepartureTimeStr());
         System.out.println("預計抵達時間: " + flight.getArrivalTimeStr());
         System.out.println("--------------------");
-        
+
         // 集中攔截機場通關異常
         try
         {
@@ -112,8 +113,7 @@ public class AirportSystem
 
             // 第三關：登機 (確認安檢通過，正式登機)
             gate.process(passenger);
-        }
-        catch (AirportException e)
+        } catch (AirportException e)
         {
             System.out.println("❌ 通關流程異常中斷：" + e.getMessage() + "\n");
         }
@@ -139,8 +139,8 @@ public class AirportSystem
         int duration = DURATIONS[idx];
 
         // 隨機生成登機時間 (時: 6~22，分: 10的倍數)
-        int hr = random.nextInt(17) + 6;  // 6 到 22 時
-        int min = random.nextInt(6) * 10;  // 0, 10, 20, 30, 40, 50 分
+        int hr = random.nextInt(17) + 6; // 6 到 22 時
+        int min = random.nextInt(6) * 10; // 0, 10, 20, 30, 40, 50 分
         LocalTime boardingTime = LocalTime.of(hr, min);
 
         return new Flight(flightNum, dest, boardingTime, duration);
@@ -149,6 +149,7 @@ public class AirportSystem
     // 顯示當前某航班的資訊
     private static void showFlightInfo(Flight f)
     {
-        System.out.println("航班: " + f.getFlightNumber() + " | 目的地: " + f.getDestination() + " | 登機時間: " + f.getBoardingTimeStr());
+        System.out.println(
+                "航班: " + f.getFlightNumber() + " | 目的地: " + f.getDestination() + " | 登機時間: " + f.getBoardingTimeStr());
     }
 }
