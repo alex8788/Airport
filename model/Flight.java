@@ -23,7 +23,7 @@ public class Flight
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     // 建構子：初始化航班資訊與容器
-    public Flight(String flightNumber, String destination, LocalTime boardingTime, int flightDurationMinutes)
+    public Flight(String flightNumber, String destination, LocalTime boardingTime, int duration)
     {
         this.flightNumber = flightNumber;
         this.destination = destination;
@@ -33,7 +33,7 @@ public class Flight
         this.departureTime = boardingTime.plusMinutes(30);
         
         // 抵達時間：起飛時間 + 飛行時間
-        this.arrivalTime = this.departureTime.plusMinutes(flightDurationMinutes);
+        this.arrivalTime = this.departureTime.plusMinutes(duration);
         
         this.boardedPassengers = new ArrayList<>();
         this.occupiedSeats = new HashSet<>();
@@ -44,20 +44,20 @@ public class Flight
     {
         Random random = new Random();
         String[] seatLetters = { "A", "B", "C", "D", "E", "F" };
-        String generatedSeat;
+        String newSeat;
 
         // 只要座位被佔用，就重新生成
         do
         {
             int row = random.nextInt(30) + 1;  // 假設有 30 排 (1~30)
             String letter = seatLetters[random.nextInt(seatLetters.length)];
-            generatedSeat = row + letter;
+            newSeat = row + letter;
         }
-        while (occupiedSeats.contains(generatedSeat));
+        while (occupiedSeats.contains(newSeat));
 
         // 找到沒人坐的位置後，加入已佔用名單並回傳
-        occupiedSeats.add(generatedSeat);
-        return generatedSeat;
+        occupiedSeats.add(newSeat);
+        return newSeat;
     }
 
     // 新增旅客到已登機名單並廣播

@@ -28,9 +28,9 @@ public class SecurityCheck implements Processable
 
         // 檢查：護照姓名是否與旅客姓名相符
         Passport passport = passenger.getPassport();
-        if (!passenger.getName().equals(passport.getHolderName()))
+        if (!passenger.getName().equals(passport.getName()))
         {
-            throw new IdentityException("安檢站", passenger.getName(), passport.getHolderName());
+            throw new IdentityException("安檢站", passenger.getName(), passport.getName());
         }
 
         // 所有檢查皆通過，更新狀態為 SECURITY_CLEARED

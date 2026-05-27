@@ -28,7 +28,7 @@ public class AirportSystem
     { 200, 150, 100, 280, 220, 270 }; // 各目的地的飛行時間 (分鐘)
 
     // 當前航班陣列
-    private static final Flight[] currentFlights = new Flight[3];
+    private static final Flight[] flights = new Flight[3];
 
     public static void main(String[] args)
     {
@@ -46,10 +46,10 @@ public class AirportSystem
     private static void initializeFlights()
     {
         System.out.println("--- 當前機場航班看板 ---");
-        for (int i = 0; i < currentFlights.length; i++)
+        for (int i = 0; i < flights.length; i++)
         {
-            currentFlights[i] = createRandomFlight();
-            showFlightInfo(currentFlights[i]);
+            flights[i] = createRandomFlight();
+            showFlightInfo(flights[i]);
         }
         System.out.println("------------------------\n");
     }
@@ -58,15 +58,15 @@ public class AirportSystem
     private static Passenger createPassenger(String name)
     {
         // 從當前航班中抽一個作為該名旅客的航班
-        Flight flight = currentFlights[random.nextInt(currentFlights.length)];
+        Flight flight = flights[random.nextInt(flights.length)];
 
         // 隨機抽取一個艙等
         CabinClass[] classes = CabinClass.values();
-        CabinClass randomCabinClass = classes[random.nextInt(classes.length)];
+        CabinClass cabinClass = classes[random.nextInt(classes.length)];
 
         // 旅客抵達機場前，已經買好機票並整理好行李
         Baggage baggage = new Baggage(15.5, false); // 行李 15.5kg，無違禁品
-        Ticket ticket = new Ticket(flight.getFlightNumber(), randomCabinClass, name); // 預先購買好的機票
+        Ticket ticket = new Ticket(flight.getFlightNumber(), cabinClass, name); // 預先購買好的機票
 
         // 預先準備好的護照
         Passport passport = new Passport(name);
@@ -122,7 +122,7 @@ public class AirportSystem
     // 根據航班編號從陣列中取得航班物件
     private static Flight getFlightByNumber(String flightNumber)
     {
-        for (Flight f : currentFlights)
+        for (Flight f : flights)
         {
             if (f != null && f.getFlightNumber().equals(flightNumber))
                 return f;

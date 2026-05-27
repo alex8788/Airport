@@ -2,16 +2,16 @@ package model;
 
 public class Passport
 {
-    private final String holderName;  // 護照持有者姓名
+    private final String name; // 護照持有者姓名
 
     // 建構子：初始化護照持有者姓名
-    public Passport(String holderName)
+    public Passport(String name)
     {
-        this.holderName = holderName;
+        this.name = name;
     }
 
-    public String getHolderName()
+    public String getName()
     {
-        return holderName;
+        return name;
     }
 }
