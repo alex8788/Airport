@@ -3,6 +3,7 @@ package main;
 import exception.AirportException;
 import java.time.LocalTime;
 import java.util.Random;
+import java.util.Scanner;
 import model.Baggage;
 import model.CabinClass;
 import model.Flight;
@@ -35,8 +36,10 @@ public class AirportSystem
         // 一次性建立並顯示 3 個當前航班
         initializeFlights();
 
-        // 建立旅客的所有相關資訊
-        Passenger passenger = createPassenger("John");
+        // 輸入旅客的所有相關資訊
+        Scanner scanner = new Scanner(System.in);
+        Passenger passenger = createPassengerInteractive(scanner);
+        scanner.close();  // 記得關閉資源
 
         // 旅客開始進行機場通關流程
         runAirportFlow(passenger);
@@ -55,8 +58,34 @@ public class AirportSystem
     }
 
     // 建立旅客物件
-    private static Passenger createPassenger(String name)
+    private static Passenger createPassengerInteractive(Scanner scanner)
     {
+        System.out.println("--- 請輸入旅客資訊 ---");
+        
+        System.out.print("1. 請輸入旅客姓名：");
+        String name = scanner.nextLine();
+
+        System.out.print("2. 請輸入護照上的姓名 (若未攜帶請直接略過)：");
+        String passportName = scanner.nextLine();
+        
+        Passport passport = passportName.trim().isEmpty() ? null : new Passport(passportName);
+
+        System.out.print("3. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
+        double weight = scanner.nextDouble();
+
+        System.out.print("4. 行李是否包含違禁品 (true / false)：");
+        boolean hasProhibitedItems = scanner.nextBoolean();
+        
+        // 略過緩衝區的換行符
+        scanner.nextLine(); 
+
+        // 若重量大於 0 或有違禁品，才建立行李物件
+        Baggage baggage = (weight > 0 || hasProhibitedItems) ? new Baggage(weight, hasProhibitedItems) : null;
+
+        System.out.print("5. 請輸入機票購買人姓名：");
+        String ticketOwner = scanner.nextLine();
+        System.out.println("----------------------\n");
+
         // 從當前航班中抽一個作為該名旅客的航班
         Flight flight = flights[random.nextInt(flights.length)];
 
@@ -64,14 +93,10 @@ public class AirportSystem
         CabinClass[] classes = CabinClass.values();
         CabinClass cabinClass = classes[random.nextInt(classes.length)];
 
-        // 旅客抵達機場前，已經買好機票並整理好行李
-        Baggage baggage = new Baggage(15.5, false); // 行李 15.5kg，無違禁品
-        Ticket ticket = new Ticket(flight.getNumber(), cabinClass, name); // 預先購買好的機票
+        // 使用使用者輸入的 ticketOwner 建立機票
+        Ticket ticket = new Ticket(flight.getNumber(), cabinClass, ticketOwner);
 
-        // 預先準備好的護照
-        Passport passport = new Passport(name);
-
-        // 旅客帶著護照、行李與機票抵達機場
+        // 建立並回傳完整的旅客物件
         return new Passenger(name, passport, baggage, ticket);
     }
 
