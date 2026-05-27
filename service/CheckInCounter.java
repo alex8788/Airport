@@ -1,5 +1,6 @@
 package service;
 
+import exception.BaggageException;
 import exception.IdentityException;
 import exception.TicketStateException;
 import model.Baggage;
@@ -41,17 +42,14 @@ public class CheckInCounter implements Processable
         {
             if (baggage.hasProhibitedItems())
             {
-                System.out.println("報到失敗：行李內含違禁品！\n");
-                return;
+                throw new BaggageException("報到櫃檯");
             }
 
             // 根據旅客的艙等，檢查行李是否超重
-            double maxWeight = ticket.getCabinClass().getMaxBaggageWeight();
-            if (baggage.getWeight() > maxWeight)
+            if (baggage.getWeight() > ticket.getCabinClass().getMaxBaggageWeight())
             {
-                System.out.println("報到失敗：行李過重 (" + baggage.getWeight() + "kg)，您的 " + ticket.getCabinClass()
-                        + " 艙等載重上限為 " + maxWeight + "kg!\n");
-                return;
+                // 修改：直接傳入 baggage 與 ticket 物件
+                throw new BaggageException("報到櫃檯", baggage, ticket);
             }
         }
 
