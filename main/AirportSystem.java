@@ -20,35 +20,41 @@ public class AirportSystem
     private static final String[] DESTINATIONS = { "東京(NRT)", "首爾(ICN)", "香港(HKG)", "新加坡(SIN)", "曼谷(BKK)", "吉隆坡(KUL)" };  // 目的地
     private static final int[] DURATIONS = { 200, 150, 100, 280, 220, 270 };  // 各目的地的飛行時間 (分鐘)
 
+    // 當前航班陣列
+    private static final Flight[] currentFlights = new Flight[3];
+
     public static void main(String[] args)
     {
         Random random = new Random();
 
-        System.out.println("--- 當前機場航班看板 ---");
-        // 隨機生成三個獨立的航班並顯示出來
-        Flight f1 = createFlight(random);
-        Flight f2 = createFlight(random);
-        Flight f3 = createFlight(random);
-
-        showFlights(f1);
-        showFlights(f2);
-        showFlights(f3);
-        System.out.println("------------------------\n");
-
-        // 從當前三個航班中，抽取一個作為該名旅客的航班
-        Flight[] availableFlights = { f1, f2, f3 };
-        Flight passengerFlight = availableFlights[random.nextInt(availableFlights.length)];
+        // 一次性建立並顯示 3 個當前航班
+        initializeFlights(random);
 
         // 建立旅客的所有相關資訊
-        Passenger passenger = createPassenger(random, "John", passengerFlight);
+        Passenger passenger = createPassenger(random, "John");
 
         // 旅客開始進行機場通關流程
-        runAirportFlow(passenger, passengerFlight);
+        runAirportFlow(passenger);
+    }
+
+    // 建立 3 個航班並儲存至陣列，並顯示航班資訊
+    private static void initializeFlights(Random random)
+    {
+        System.out.println("--- 當前機場航班看板 ---");
+        for (int i = 0; i < currentFlights.length; i++)
+        {
+            currentFlights[i] = createRandomFlight(random);
+            showFlightInfo(currentFlights[i]);
+        }
+        System.out.println("------------------------\n");
     }
 
     // 建立旅客物件
-    private static Passenger createPassenger(Random random, String name, Flight flight)
+    private static Passenger createPassenger(Random random, String name)
     {
+        // 從當前航班中抽一個作為該名旅客的航班
+        Flight flight = currentFlights[random.nextInt(currentFlights.length)];
+
         // 隨機抽取一個艙等
         CabinClass[] classes = CabinClass.values();
         CabinClass randomCabinClass = classes[random.nextInt(classes.length)];
@@ -65,14 +71,23 @@ public class AirportSystem
     }
 
     // 初始化機場關卡並進行通關流程
-    private static void runAirportFlow(Passenger passenger, Flight flight)
+    private static void runAirportFlow(Passenger passenger)
     {
+        // 根據旅客機票上的航班編號，從全域陣列中找出對應的航班物件
+        Flight flight = getFlightByNumber(passenger.getTicket().getFlightNumber());
+
+        if (flight == null)
+        {
+            System.out.println("系統錯誤：找不到機票對應的航班！\n");
+            return;
+        }
+
         // 建立機場的各個關卡 (使用旅客搭乘的航班)
         Processable counter = new CheckInCounter(flight);
         Processable security = new SecurityCheck();
         Processable gate = new BoardingGate(flight);
 
-        // 流程開始
+        // 通關流程開始
         System.out.println("--- 旅客抵達機場 ---");
         System.out.println("旅客所持機票航班: " + flight.getFlightNumber());
         System.out.println("機票艙等: " + passenger.getTicket().getCabinClass());
@@ -92,8 +107,19 @@ public class AirportSystem
         gate.process(passenger);
     }
 
-    // 隨機抽取航班及其對應的登機時間
-    private static Flight createFlight(Random random)
+    // 根據航班編號從陣列中取得航班物件
+    private static Flight getFlightByNumber(String flightNumber)
+    {
+        for (Flight f : currentFlights)
+        {
+            if (f != null && f.getFlightNumber().equals(flightNumber))
+                return f;
+        }
+        return null;
+    }
+
+    // 隨機產生一個航班及其對應的登機時間
+    private static Flight createRandomFlight(Random random)
     {
         int idx = random.nextInt(FLIGHT_NUMS.length);
         String flightNum = FLIGHT_NUMS[idx];
@@ -108,8 +134,8 @@ public class AirportSystem
         return new Flight(flightNum, dest, boardingTime, duration);
     }
 
-    // 顯示當前的航班資訊
-    private static void showFlights(Flight f)
+    // 顯示當前某航班的資訊
+    private static void showFlightInfo(Flight f)
     {
         System.out.println("航班: " + f.getFlightNumber() + " | 目的地: " + f.getDestination() + " | 登機時間: " + f.getBoardingTimeStr());
     }
