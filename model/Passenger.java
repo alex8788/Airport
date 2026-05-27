@@ -31,6 +31,11 @@ public class Passenger
         return passport != null;
     }
 
+    public boolean hasBaggage()
+    {
+        return baggage != null;
+    }
+
     public Baggage getBaggage()
     {
         return baggage;

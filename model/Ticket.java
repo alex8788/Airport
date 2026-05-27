@@ -38,9 +38,9 @@ public class Ticket
         return seatId;
     }
 
-    public void assignSeat(String seatNumber)
+    public void assignSeat(String seatId)
     {
-        this.seatId = seatNumber;
+        this.seatId = seatId;
     }
 
     public TicketState getState()

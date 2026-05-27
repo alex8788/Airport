@@ -10,6 +10,8 @@ import java.util.Set;
 
 public class Flight
 {
+    private static final String[] SEAT_LETTERS = { "A", "B", "C", "D", "E", "F" };
+
     private final String number; // 航班編號
     private final String destination; // 目的地
     private final LocalTime boardingTime; // 登機時間
@@ -43,15 +45,13 @@ public class Flight
     public String assignRandomSeat()
     {
         Random random = new Random();
-        String[] seatLetters =
-        { "A", "B", "C", "D", "E", "F" };
         String newSeat;
 
         // 只要座位被佔用，就重新生成
         do
         {
             int row = random.nextInt(30) + 1; // 假設有 30 排 (1~30)
-            String letter = seatLetters[random.nextInt(seatLetters.length)];
+            String letter = SEAT_LETTERS[random.nextInt(SEAT_LETTERS.length)];
             newSeat = row + letter;
         } while (occupiedSeats.contains(newSeat));
 

@@ -38,7 +38,7 @@ public class CheckInCounter implements Processable
         }
 
         // 行李託運：違禁品與超重檢查
-        if (baggage != null)
+        if (passenger.hasBaggage())
         {
             if (baggage.hasProhibitedItems())
             {

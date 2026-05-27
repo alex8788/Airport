@@ -17,20 +17,30 @@ import service.SecurityCheck;
 
 public class AirportSystem
 {
-    // 全域共用的 Random 物件
+    // 全域的輔助物件
     private static final Random random = new Random();
-
-    // 全域共用的 Scanner 物件
     private static final Scanner scanner = new Scanner(System.in);
 
-    // 定期航班資訊 (一律由台北出發，6 個航班)
-    private static final String[] FLIGHT_NUMS =
-    { "BR198", "BR159", "CI909", "CI751", "JX800", "CX421" }; // 航班編號
-    private static final String[] DESTINATIONS =
-    { "東京(NRT)", "首爾(ICN)", "香港(HKG)", "新加坡(SIN)", "曼谷(BKK)", "吉隆坡(KUL)" }; // 目的地
-    private static final int[] DURATIONS =
-    { 200, 150, 100, 280, 220, 270 }; // 各目的地的飛行時間 (分鐘)
+    // 航線列舉：包含目的地與飛行時間
+    private enum Route
+    {
+        BR198("東京(NRT)", 200),
+        BR159("首爾(ICN)", 150),
+        CI909("香港(HKG)", 100),
+        CI751("新加坡(SIN)", 280),
+        JX800("曼谷(BKK)", 220),
+        CX421("吉隆坡(KUL)", 270);
 
+        final String destination;
+        final int duration;
+
+        Route(String destination, int duration)
+        {
+            this.destination = destination;
+            this.duration = duration;
+        }
+    }
+    
     // 當前航班陣列
     private static final Flight[] flights = new Flight[3];
 
@@ -134,8 +144,7 @@ public class AirportSystem
 
             pause("登機門");
             gate.process(passenger);
-        }
-        catch (AirportException e)
+        } catch (AirportException e)
         {
             System.out.println("通關流程異常中斷：" + e.getMessage() + "\n");
         }
@@ -148,26 +157,25 @@ public class AirportSystem
         scanner.nextLine();
     }
 
-    // 隨機產生一個航班及其對應的登機時間
+    // 隨機產生一個航班物件
     private static Flight createRandomFlight()
     {
-        int idx = random.nextInt(FLIGHT_NUMS.length);
-        String flightNum = FLIGHT_NUMS[idx];
-        String dest = DESTINATIONS[idx];
-        int duration = DURATIONS[idx];
+        // 隨機抽取一條航線
+        Route[] routes = Route.values();
+        Route route = routes[random.nextInt(routes.length)];
 
         // 隨機生成登機時間 (時: 6~22，分: 10的倍數)
         int hr = random.nextInt(17) + 6; // 6 到 22 時
         int min = random.nextInt(6) * 10; // 0, 10, 20, 30, 40, 50 分
         LocalTime boardingTime = LocalTime.of(hr, min);
 
-        return new Flight(flightNum, dest, boardingTime, duration);
+        return new Flight(route.name(), route.destination, boardingTime, route.duration);
     }
 
     // 顯示當前某航班的資訊
     private static void showFlightInfo(Flight f)
     {
-        System.out.println("航班: " + f.getNumber() + " | 目的地: " + f.getDestination() +
-                             " | 登機時間: " + f.getBoardingTime());
+        System.out
+                .println("航班: " + f.getNumber() + " | 目的地: " + f.getDestination() + " | 登機時間: " + f.getBoardingTime());
     }
 }
