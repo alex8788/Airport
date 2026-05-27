@@ -20,6 +20,9 @@ public class AirportSystem
     // 全域共用的 Random 物件
     private static final Random random = new Random();
 
+    // 全域共用的 Scanner 物件
+    private static final Scanner scanner = new Scanner(System.in);
+
     // 定期航班資訊 (一律由台北出發，6 個航班)
     private static final String[] FLIGHT_NUMS =
     { "BR198", "BR159", "CI909", "CI751", "JX800", "CX421" }; // 航班編號
@@ -36,12 +39,10 @@ public class AirportSystem
         // 一次性建立並顯示 3 個當前航班
         initializeFlights();
 
-        // 輸入旅客的所有相關資訊
-        Scanner scanner = new Scanner(System.in);
-        Passenger passenger = setupPassenger(scanner);
-
+        // 初始化旅客物件, 並輸入相關資訊
+        Passenger passenger = setupPassenger();
         // 旅客開始進行機場通關流程
-        runAirportFlow(passenger, scanner);
+        runAirportFlow(passenger);
 
         scanner.close();
     }
@@ -59,7 +60,7 @@ public class AirportSystem
     }
 
     // 輸入旅客資訊, 初始化旅客物件
-    private static Passenger setupPassenger(Scanner scanner)
+    private static Passenger setupPassenger()
     {
         System.out.println("--- 請輸入旅客資訊 ---");
 
@@ -68,7 +69,7 @@ public class AirportSystem
 
         System.out.print("2. 請輸入護照上的姓名 (若未攜帶請直接略過)：");
         String passportName = scanner.nextLine();
-
+        // null 表示沒帶護照
         Passport passport = passportName.trim().isEmpty() ? null : new Passport(passportName);
 
         System.out.print("3. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
@@ -87,8 +88,8 @@ public class AirportSystem
         String ticketOwner = scanner.nextLine();
         System.out.println("----------------------\n");
 
-        // 從當前航班中抽一個作為該名旅客的航班
-        Flight flight = flights[random.nextInt(flights.length)];
+        // 指定旅客搭乘陣列的第一個航班
+        Flight flight = flights[0];
 
         // 隨機抽取一個艙等
         CabinClass[] classes = CabinClass.values();
@@ -102,18 +103,10 @@ public class AirportSystem
     }
 
     // 初始化機場關卡並進行通關流程
-    private static void runAirportFlow(Passenger passenger, Scanner scanner)
+    private static void runAirportFlow(Passenger passenger)
     {
-        // 取得機票上的航班編號
-        Flight flight = null;
-        for (Flight f : flights)
-        {
-            if (f.getNumber().equals(passenger.getTicket().getFlightNum()))
-            {
-                flight = f;
-                break;
-            }
-        }
+        // 假設旅客皆搭乘首個航班
+        Flight flight = flights[0];
 
         // 建立機場的各個關卡
         Processable counter = new CheckInCounter(flight);
@@ -133,25 +126,26 @@ public class AirportSystem
         // 集中攔截機場通關異常
         try
         {
-            // 第一關：報到櫃檯
-            System.out.print("\n[系統] 即將前往【報到櫃檯】, 按下Enter繼續...");
-            scanner.nextLine();
+            pause("報到櫃檯");
             counter.process(passenger);
 
-            // 第一關：安檢站
-            System.out.print("\n[系統] 即將前往【安檢站】, 按下Enter繼續...\"");
-            scanner.nextLine();
+            pause("安檢站");
             security.process(passenger);
 
-            // 第一關：登機門
-            System.out.print("\n[系統] 即將前往【登機門】, 按下Enter繼續...\"");
-            scanner.nextLine();
+            pause("登機門");
             gate.process(passenger);
         }
         catch (AirportException e)
         {
             System.out.println("通關流程異常中斷：" + e.getMessage() + "\n");
         }
+    }
+
+    // 系統訊息輔助函式
+    private static void pause(String location)
+    {
+        System.out.print("\n[系統] 即將前往【" + location + "】, 按下Enter繼續...");
+        scanner.nextLine();
     }
 
     // 隨機產生一個航班及其對應的登機時間
