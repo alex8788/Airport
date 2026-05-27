@@ -41,7 +41,7 @@ public class CheckInCounter implements Processable
         // 檢查：託運行李是否含違禁品或超重
         if (passenger.hasBaggage())
         {
-            if (baggage.hasProhibitedItems())
+            if (baggage.hasContraband())
             {
                 throw new BaggageException("報到櫃檯");
             }

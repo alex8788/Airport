@@ -10,9 +10,11 @@ import java.util.Set;
 
 public class Flight
 {
+    private static final Random RANDOM = new Random();  // 全域random物件
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");  // 時間格式化工具
+
     private static final String[] SEAT_LETTERS = { "A", "B", "C", "D", "E", "F" };
     private static final int MAX_ROWS = 15;  // 座位排數
-    private static final Random RANDOM = new Random();  // 全域random物件
 
     private final String number; // 航班編號
     private final String destination; // 目的地
@@ -23,8 +25,6 @@ public class Flight
     private final List<Passenger> boardedPassengers; // 已登機的乘客列表
     private final Set<String> occupiedSeats; // 已被劃位的座位集合
 
-    // 時間格式化工具
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     // 建構子：初始化航班資訊
     public Flight(String flightNumber, String destination, LocalTime boardingTime, int duration)
@@ -43,7 +43,7 @@ public class Flight
         this.occupiedSeats = new HashSet<>();
     }
 
-    // 隨機分配一個空的座位
+    // 分配一個空的座位
     public String assignRandomSeat()
     {
         String newSeat;
@@ -69,7 +69,7 @@ public class Flight
         System.out.println("  [航站廣播] 航班 " + number + " 旅客：" + passenger.getName() + " 已順利登機。");
     }
 
-    // 生成分配其他旅客的座位 (預設 60 個)
+    // 分配其他旅客的座位 (預設 60 個)
     public void preOccupySeats(int count)
     {
         while (occupiedSeats.size() < count)

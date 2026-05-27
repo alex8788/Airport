@@ -89,7 +89,7 @@ public class AirportSystem
         // 分配其他乘客的座位 (預設 30 人)
         flight.preOccupySeats(30);
 
-        // 隨機抽一個艙等
+        // 分配一個艙等
         CabinClass[] classes = CabinClass.values();
         CabinClass cabinClass = classes[random.nextInt(classes.length)];
 
