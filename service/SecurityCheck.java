@@ -1,5 +1,6 @@
 package service;
 
+import exception.DocumentException;
 import exception.IdentityException;
 import exception.TicketStateException;
 import model.Passenger;
@@ -22,8 +23,7 @@ public class SecurityCheck implements Processable
         // 檢查：是否攜帶護照
         if (!passenger.hasPassport())
         {
-            System.out.println("安檢失敗：未攜帶護照。\n");
-            return;
+            throw new DocumentException("安檢站", "護照");
         }
 
         // 檢查：護照姓名是否與旅客姓名相符

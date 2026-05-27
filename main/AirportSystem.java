@@ -19,7 +19,7 @@ public class AirportSystem
     // 全域共用的 Random 物件
     private static final Random random = new Random();
 
-    // 航班陣列，存放定期航班資訊 (一律由台北出發，6 個航班)
+    // 定期航班資訊 (一律由台北出發，6 個航班)
     private static final String[] FLIGHT_NUMS =
     { "BR198", "BR159", "CI909", "CI751", "JX800", "CX421" }; // 航班編號
     private static final String[] DESTINATIONS =
@@ -115,7 +115,7 @@ public class AirportSystem
             gate.process(passenger);
         } catch (AirportException e)
         {
-            System.out.println("❌ 通關流程異常中斷：" + e.getMessage() + "\n");
+            System.out.println("通關流程異常中斷：" + e.getMessage() + "\n");
         }
     }
 
