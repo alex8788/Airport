@@ -167,7 +167,7 @@ public class AirportSystem
     // 顯示當前某航班的資訊
     private static void showFlightInfo(Flight f)
     {
-        System.out
-                .println("航班: " + f.getNumber() + " | 目的地: " + f.getDestination() + " | 登機時間: " + f.getBoardingTime());
+        System.out.println("航班: " + f.getNumber() + " | 目的地: " + f.getDestination() +
+                             " | 登機時間: " + f.getBoardingTime());
     }
 }
