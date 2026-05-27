@@ -24,7 +24,7 @@ public class BoardingGate implements Processable
         if (ticket.getState() != TicketState.SECURITY_CLEARED)
         {
             System.out.println("登機失敗：請確認是否已完成報到與安檢手續。\n");
-            return;  // 中斷流程
+            return;
         }
 
         ticket.setState(TicketState.BOARDED);

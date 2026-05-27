@@ -6,6 +6,7 @@ import model.Baggage;
 import model.CabinClass;
 import model.Flight;
 import model.Passenger;
+import model.Passport;
 import model.Ticket;
 import service.BoardingGate;
 import service.CheckInCounter;
@@ -34,7 +35,7 @@ public class AirportSystem
         showFlights(f3);
         System.out.println("------------------------\n");
 
-        // 從剛剛生成的三個看板航班中，隨機抽取一個作為該名旅客的航班
+        // 從當前三個航班中，抽取一個作為該名旅客的航班
         Flight[] availableFlights = { f1, f2, f3 };
         Flight passengerFlight = availableFlights[random.nextInt(availableFlights.length)];
 
@@ -48,16 +49,19 @@ public class AirportSystem
     // 建立旅客物件
     private static Passenger createPassenger(Random random, String name, Flight flight)
     {
-        // 將 CabinClass 的所有選項轉換為陣列，並隨機抽取一個艙等
+        // 隨機抽取一個艙等
         CabinClass[] classes = CabinClass.values();
         CabinClass randomCabinClass = classes[random.nextInt(classes.length)];
 
         // 旅客抵達機場前，已經買好機票並整理好行李
         Baggage baggage = new Baggage(15.5, false);  // 行李 15.5kg，無違禁品
         Ticket ticket = new Ticket(flight.getFlightNumber(), randomCabinClass, name);  // 預先購買好的機票
+
+        // 預先準備好的護照
+        Passport passport = new Passport(name);
         
         // 旅客帶著護照、行李與機票抵達機場
-        return new Passenger(name, true, baggage, ticket);
+        return new Passenger(name, passport, baggage, ticket);
     }
 
     // 初始化機場關卡並進行通關流程
@@ -71,7 +75,7 @@ public class AirportSystem
         // 流程開始
         System.out.println("--- 旅客抵達機場 ---");
         System.out.println("旅客所持機票航班: " + flight.getFlightNumber());
-        System.out.println("機票艙等: " + passenger.getTicket().getCabinClass());  // 新增：印出旅客隨機抽到的艙等
+        System.out.println("機票艙等: " + passenger.getTicket().getCabinClass());
         System.out.println("目的地: " + flight.getDestination());
         System.out.println("登機時間: " + flight.getBoardingTimeStr());
         System.out.println("預計起飛時間: " + flight.getDepartureTimeStr());
