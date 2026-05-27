@@ -42,6 +42,8 @@ public class AirportSystem
 
         // 旅客開始進行機場通關流程
         runAirportFlow(passenger, scanner);
+
+        scanner.close();
     }
 
     // 建立 3 個航班，並顯示航班資訊
@@ -102,13 +104,15 @@ public class AirportSystem
     // 初始化機場關卡並進行通關流程
     private static void runAirportFlow(Passenger passenger, Scanner scanner)
     {
-        // 機票上的航班編號
-        Flight flight = getFlightByNum(passenger.getTicket().getFlightNum());
-
-        if (flight == null)
+        // 取得機票上的航班編號
+        Flight flight = null;
+        for (Flight f : flights)
         {
-            System.out.println("系統錯誤：找不到機票對應的航班！\n");
-            return;
+            if (f.getNumber().equals(passenger.getTicket().getFlightNum()))
+            {
+                flight = f;
+                break;
+            }
         }
 
         // 建立機場的各個關卡
@@ -148,17 +152,6 @@ public class AirportSystem
         {
             System.out.println("通關流程異常中斷：" + e.getMessage() + "\n");
         }
-    }
-
-    // 根據航班編號從陣列中取得航班物件
-    private static Flight getFlightByNum(String flightNum)
-    {
-        for (Flight f : flights)
-        {
-            if (f != null && f.getNumber().equals(flightNum))
-                return f;
-        }
-        return null;
     }
 
     // 隨機產生一個航班及其對應的登機時間
