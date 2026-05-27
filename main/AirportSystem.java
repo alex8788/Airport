@@ -79,7 +79,7 @@ public class AirportSystem
     private static void runAirportFlow(Passenger passenger)
     {
         // 機票上的航班編號
-        Flight flight = getFlightByNumber(passenger.getTicket().getFlightNumber());
+        Flight flight = getFlightByNum(passenger.getTicket().getFlightNum());
 
         if (flight == null)
         {
@@ -120,11 +120,11 @@ public class AirportSystem
     }
 
     // 根據航班編號從陣列中取得航班物件
-    private static Flight getFlightByNumber(String flightNumber)
+    private static Flight getFlightByNum(String flightNum)
     {
         for (Flight f : flights)
         {
-            if (f != null && f.getNumber().equals(flightNumber))
+            if (f != null && f.getNumber().equals(flightNum))
                 return f;
         }
         return null;
