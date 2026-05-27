@@ -38,7 +38,7 @@ public class AirportSystem
 
         // 輸入旅客的所有相關資訊
         Scanner scanner = new Scanner(System.in);
-        Passenger passenger = createPassengerInteractive(scanner);
+        Passenger passenger = setupPassenger(scanner);
 
         // 旅客開始進行機場通關流程
         runAirportFlow(passenger, scanner);
@@ -56,8 +56,8 @@ public class AirportSystem
         System.out.println("------------------------\n");
     }
 
-    // 建立旅客物件
-    private static Passenger createPassengerInteractive(Scanner scanner)
+    // 輸入旅客資訊, 初始化旅客物件
+    private static Passenger setupPassenger(Scanner scanner)
     {
         System.out.println("--- 請輸入旅客資訊 ---");
 
