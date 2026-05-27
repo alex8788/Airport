@@ -39,10 +39,9 @@ public class AirportSystem
         // 輸入旅客的所有相關資訊
         Scanner scanner = new Scanner(System.in);
         Passenger passenger = createPassengerInteractive(scanner);
-        scanner.close();  // 記得關閉資源
 
         // 旅客開始進行機場通關流程
-        runAirportFlow(passenger);
+        runAirportFlow(passenger, scanner);
     }
 
     // 建立 3 個航班，並顯示航班資訊
@@ -61,13 +60,13 @@ public class AirportSystem
     private static Passenger createPassengerInteractive(Scanner scanner)
     {
         System.out.println("--- 請輸入旅客資訊 ---");
-        
+
         System.out.print("1. 請輸入旅客姓名：");
         String name = scanner.nextLine();
 
         System.out.print("2. 請輸入護照上的姓名 (若未攜帶請直接略過)：");
         String passportName = scanner.nextLine();
-        
+
         Passport passport = passportName.trim().isEmpty() ? null : new Passport(passportName);
 
         System.out.print("3. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
@@ -75,9 +74,9 @@ public class AirportSystem
 
         System.out.print("4. 行李是否包含違禁品 (true / false)：");
         boolean hasProhibitedItems = scanner.nextBoolean();
-        
+
         // 略過緩衝區的換行符
-        scanner.nextLine(); 
+        scanner.nextLine();
 
         // 若重量大於 0 或有違禁品，才建立行李物件
         Baggage baggage = (weight > 0 || hasProhibitedItems) ? new Baggage(weight, hasProhibitedItems) : null;
@@ -101,7 +100,7 @@ public class AirportSystem
     }
 
     // 初始化機場關卡並進行通關流程
-    private static void runAirportFlow(Passenger passenger)
+    private static void runAirportFlow(Passenger passenger, Scanner scanner)
     {
         // 機票上的航班編號
         Flight flight = getFlightByNum(passenger.getTicket().getFlightNum());
@@ -130,15 +129,22 @@ public class AirportSystem
         // 集中攔截機場通關異常
         try
         {
-            // 第一關：報到 (櫃檯檢查行李，並為已訂位的機票分配隨機座位)
+            // 第一關：報到櫃檯
+            System.out.print("\n[系統] 即將前往【報到櫃檯】, 按下Enter繼續...");
+            scanner.nextLine();
             counter.process(passenger);
 
-            // 第二關：安檢 (檢查護照，確認機票狀態為已報到)
+            // 第一關：安檢站
+            System.out.print("\n[系統] 即將前往【安檢站】, 按下Enter繼續...\"");
+            scanner.nextLine();
             security.process(passenger);
 
-            // 第三關：登機 (確認安檢通過，正式登機)
+            // 第一關：登機門
+            System.out.print("\n[系統] 即將前往【登機門】, 按下Enter繼續...\"");
+            scanner.nextLine();
             gate.process(passenger);
-        } catch (AirportException e)
+        }
+        catch (AirportException e)
         {
             System.out.println("通關流程異常中斷：" + e.getMessage() + "\n");
         }
