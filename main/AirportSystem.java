@@ -15,6 +15,9 @@ import service.SecurityCheck;
 
 public class AirportSystem
 {
+    // 全域共用的 Random 物件
+    private static final Random random = new Random();
+
     // 航班陣列，存放定期航班資訊 (一律由台北出發，6 個航班)
     private static final String[] FLIGHT_NUMS = { "BR198", "BR159", "CI909", "CI751", "JX800", "CX421" };  // 航班編號
     private static final String[] DESTINATIONS = { "東京(NRT)", "首爾(ICN)", "香港(HKG)", "新加坡(SIN)", "曼谷(BKK)", "吉隆坡(KUL)" };  // 目的地
@@ -25,32 +28,30 @@ public class AirportSystem
 
     public static void main(String[] args)
     {
-        Random random = new Random();
-
         // 一次性建立並顯示 3 個當前航班
-        initializeFlights(random);
+        initializeFlights();
 
         // 建立旅客的所有相關資訊
-        Passenger passenger = createPassenger(random, "John");
+        Passenger passenger = createPassenger("John");
 
         // 旅客開始進行機場通關流程
         runAirportFlow(passenger);
     }
 
     // 建立 3 個航班並儲存至陣列，並顯示航班資訊
-    private static void initializeFlights(Random random)
+    private static void initializeFlights()
     {
         System.out.println("--- 當前機場航班看板 ---");
         for (int i = 0; i < currentFlights.length; i++)
         {
-            currentFlights[i] = createRandomFlight(random);
+            currentFlights[i] = createRandomFlight();
             showFlightInfo(currentFlights[i]);
         }
         System.out.println("------------------------\n");
     }
 
     // 建立旅客物件
-    private static Passenger createPassenger(Random random, String name)
+    private static Passenger createPassenger(String name)
     {
         // 從當前航班中抽一個作為該名旅客的航班
         Flight flight = currentFlights[random.nextInt(currentFlights.length)];
@@ -119,7 +120,7 @@ public class AirportSystem
     }
 
     // 隨機產生一個航班及其對應的登機時間
-    private static Flight createRandomFlight(Random random)
+    private static Flight createRandomFlight()
     {
         int idx = random.nextInt(FLIGHT_NUMS.length);
         String flightNum = FLIGHT_NUMS[idx];
