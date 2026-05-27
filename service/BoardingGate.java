@@ -1,5 +1,6 @@
 package service;
 
+import exception.InvalidTicketStateException;
 import model.Flight;
 import model.Passenger;
 import model.Ticket;
@@ -23,8 +24,7 @@ public class BoardingGate implements Processable
         // 檢查：是否已完成安檢手續 (SECURITY_CLEARED)
         if (ticket.getState() != TicketState.SECURITY_CLEARED)
         {
-            System.out.println("登機失敗：請確認是否已完成報到與安檢手續。\n");
-            return;
+            throw new InvalidTicketStateException("登機", TicketState.SECURITY_CLEARED, ticket.getState());
         }
 
         ticket.setState(TicketState.BOARDED);

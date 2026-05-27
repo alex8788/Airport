@@ -1,5 +1,6 @@
 package main;
 
+import exception.AirportException;
 import java.time.LocalTime;
 import java.util.Random;
 import model.Baggage;
@@ -26,6 +27,7 @@ public class AirportSystem
     // 當前航班陣列
     private static final Flight[] currentFlights = new Flight[3];
 
+
     public static void main(String[] args)
     {
         // 一次性建立並顯示 3 個當前航班
@@ -37,6 +39,7 @@ public class AirportSystem
         // 旅客開始進行機場通關流程
         runAirportFlow(passenger);
     }
+
 
     // 建立 3 個航班並儲存至陣列，並顯示航班資訊
     private static void initializeFlights()
@@ -98,14 +101,22 @@ public class AirportSystem
         System.out.println("預計抵達時間: " + flight.getArrivalTimeStr());
         System.out.println("--------------------");
         
-        // 第一關：報到 (櫃檯檢查行李，並為已訂位的機票分配隨機座位)
-        counter.process(passenger);
+        // 集中攔截機場通關異常
+        try
+        {
+            // 第一關：報到 (櫃檯檢查行李，並為已訂位的機票分配隨機座位)
+            counter.process(passenger);
 
-        // 第二關：安檢 (檢查護照，確認機票狀態為已報到)
-        security.process(passenger);
+            // 第二關：安檢 (檢查護照，確認機票狀態為已報到)
+            security.process(passenger);
 
-        // 第三關：登機 (確認安檢通過，正式登機)
-        gate.process(passenger);
+            // 第三關：登機 (確認安檢通過，正式登機)
+            gate.process(passenger);
+        }
+        catch (AirportException e)
+        {
+            System.out.println("❌ 通關流程異常中斷：" + e.getMessage() + "\n");
+        }
     }
 
     // 根據航班編號從陣列中取得航班物件

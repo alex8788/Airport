@@ -1,5 +1,6 @@
 package service;
 
+import exception.InvalidTicketStateException;
 import model.Passenger;
 import model.Passport;
 import model.TicketState;
@@ -14,7 +15,13 @@ public class SecurityCheck implements Processable
         // 檢查：是否已經報到 (CHECKED_IN)
         if (passenger.getTicket().getState() != TicketState.CHECKED_IN)
         {
-            System.out.println("安檢失敗：狀態異常，請先完成報到。\n");
+            throw new InvalidTicketStateException("安檢站", TicketState.CHECKED_IN, passenger.getTicket().getState());
+        }
+
+        // 檢查：是否攜帶護照
+        if (!passenger.hasPassport())
+        {
+            System.out.println("安檢失敗：未攜帶護照。\n");
             return;
         }
 
@@ -23,7 +30,7 @@ public class SecurityCheck implements Processable
         if (!passenger.getName().equals(passport.getHolderName()))
         {
             System.out.println("安檢失敗：護照姓名與旅客姓名不符！\n");
-            return;  // 姓名不符，中斷流程
+            return;
         }
 
         // 所有檢查皆通過，更新狀態為 SECURITY_CLEARED
