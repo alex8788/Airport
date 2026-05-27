@@ -49,7 +49,6 @@ public class CheckInCounter implements Processable
             // 根據旅客的艙等，檢查行李是否超重
             if (baggage.getWeight() > ticket.getCabinClass().getMaxWeight())
             {
-                // 修改：直接傳入 baggage 與 ticket 物件
                 throw new BaggageException("報到櫃檯", baggage, ticket);
             }
         }
@@ -58,7 +57,10 @@ public class CheckInCounter implements Processable
         String newSeat = flight.assignRandomSeat();
         ticket.assignSeat(newSeat);
         ticket.setState(TicketState.CHECKED_IN);
-        
+
         System.out.println("  [地勤報到系統] 報到完成！行李檢查通過。已劃位：" + ticket.getSeatId() + "，狀態更新為：CHECKED_IN\n");
+
+        // 顯示當前座位表
+        flight.printSeatMap(ticket.getSeatId());
     }
 }

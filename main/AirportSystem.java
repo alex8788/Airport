@@ -67,10 +67,10 @@ public class AirportSystem
     private static Passenger setupPassenger()
     {
         System.out.println("--- 請輸入旅客資訊 ---");
+
         String name = readString("1. 請輸入旅客姓名：", false);
 
         String passportName = readString("2. 請輸入護照上的姓名 (若未攜帶請直接略過)：", true);
-        // null 表示沒帶護照
         Passport passport = passportName.trim().isEmpty() ? null : new Passport(passportName);
 
         double weight = readNonNegDouble("3. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
@@ -85,11 +85,15 @@ public class AirportSystem
 
         // 指定旅客搭乘陣列的第一個航班
         Flight flight = flights[0];
+
+        // 分配其他乘客的座位 (預設 30 人)
+        flight.preOccupySeats(30);
+
         // 隨機抽一個艙等
         CabinClass[] classes = CabinClass.values();
         CabinClass cabinClass = classes[random.nextInt(classes.length)];
 
-        // 依據使用者輸入的 ticketOwner 產生機票
+        // 依據輸入的購買人姓名產生機票
         Ticket ticket = new Ticket(flight.getNumber(), cabinClass, ticketOwner);
 
         // 建立並回傳完整的旅客物件

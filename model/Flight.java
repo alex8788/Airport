@@ -11,7 +11,7 @@ import java.util.Set;
 public class Flight
 {
     private static final String[] SEAT_LETTERS = { "A", "B", "C", "D", "E", "F" };
-    private static final int MAX_ROWS = 30;  // 機艙座位排數
+    private static final int MAX_ROWS = 15;  // 座位排數
     private static final Random RANDOM = new Random();  // 全域random物件
 
     private final String number; // 航班編號
@@ -26,7 +26,7 @@ public class Flight
     // 時間格式化工具
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    // 建構子：初始化航班資訊與容器
+    // 建構子：初始化航班資訊
     public Flight(String flightNumber, String destination, LocalTime boardingTime, int duration)
     {
         this.number = flightNumber;
@@ -67,6 +67,55 @@ public class Flight
     {
         boardedPassengers.add(passenger);
         System.out.println("  [航站廣播] 航班 " + number + " 旅客：" + passenger.getName() + " 已順利登機。");
+    }
+
+    // 生成分配其他旅客的座位 (預設 60 個)
+    public void preOccupySeats(int count)
+    {
+        while (occupiedSeats.size() < count)
+        {
+            int row = RANDOM.nextInt(MAX_ROWS) + 1;
+            String letter = SEAT_LETTERS[RANDOM.nextInt(SEAT_LETTERS.length)];
+            occupiedSeats.add(row + letter);
+        }
+    }
+
+    // 繪製並打印航班的座位狀態表
+    public void printSeatMap(String passengerSeat)
+    {
+        System.out.println("  [地勤報到系統] 航班 " + number + " 座位配置圖 (X: 已佔用, .: 空位, P: 您的座位)：");
+
+        // 打印頂部的排數編號 (01 ~ 15)
+        System.out.print("    ");
+        for (int row = 1; row <= MAX_ROWS; row++)
+            System.out.printf(" %02d ", row);
+        System.out.println();
+        
+        // 外層迴圈控制橫列 (A ~ F)
+        for (int i = 0; i < SEAT_LETTERS.length; i++)
+        {
+            String letter = SEAT_LETTERS[i];
+            System.out.print("  " + letter + " ");
+
+            // 內層迴圈印出該字母對應的排數
+            for (int row = 1; row <= MAX_ROWS; row++)
+            {
+                String seat = row + letter;
+                
+                if (seat.equals(passengerSeat))  // 該旅客
+                    System.out.print("[P] ");
+                else if (occupiedSeats.contains(seat))  // 其他乘客
+                    System.out.print("[X] ");
+                else
+                    System.out.print("[ ] ");  // 空位
+            }
+            System.out.println();
+
+            // 模擬雙走道 (2-2-2 配置)
+            if (i == 1 || i == 3)
+                System.out.println();
+        }
+        System.out.println();
     }
 
     public String getNumber()
