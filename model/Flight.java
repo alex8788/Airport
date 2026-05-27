@@ -66,7 +66,7 @@ public class Flight
     public void addPassenger(Passenger passenger)
     {
         boardedPassengers.add(passenger);
-        System.out.println("航班 " + number + " 廣播：" + passenger.getName() + " 歡迎登機！");
+        System.out.println("  [航站廣播] 航班 " + number + " 旅客：" + passenger.getName() + " 已順利登機。");
     }
 
     public String getNumber()

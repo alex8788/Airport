@@ -23,7 +23,8 @@ public class CheckInCounter implements Processable
     {
         Ticket ticket = passenger.getTicket();
         Baggage baggage = passenger.getBaggage();
-        System.out.println("報到櫃檯處理中... 旅客：" + passenger.getName());
+
+        System.out.println("  [地勤報到系統] 開始處理，旅客：" + passenger.getName());
 
         // 檢查：旅客姓名是否與購票者相符
         if (!passenger.getName().equals(ticket.getOwner()))
@@ -37,7 +38,7 @@ public class CheckInCounter implements Processable
             throw new TicketStateException("報到櫃檯", TicketState.BOOKED, ticket.getState());
         }
 
-        // 行李託運：違禁品與超重檢查
+        // 檢查：託運行李是否含違禁品或超重
         if (passenger.hasBaggage())
         {
             if (baggage.hasProhibitedItems())
@@ -57,6 +58,7 @@ public class CheckInCounter implements Processable
         String newSeat = flight.assignRandomSeat();
         ticket.assignSeat(newSeat);
         ticket.setState(TicketState.CHECKED_IN);
-        System.out.println("報到成功！行李檢查通過。已分配座位：" + ticket.getSeatId() + "，狀態更新為：CHECKED_IN\n");
+        
+        System.out.println("  [地勤報到系統] 報到完成！行李檢查通過。已劃位：" + ticket.getSeatId() + "，狀態更新為：CHECKED_IN\n");
     }
 }

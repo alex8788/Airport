@@ -70,14 +70,14 @@ public class AirportSystem
         String name = readString("1. 請輸入旅客姓名：", false);
 
         String passportName = readString("2. 請輸入護照上的姓名 (若未攜帶請直接略過)：", true);
-        
-        Passport passport = passportName.trim().isEmpty() ? null : new Passport(passportName);  // null 表示沒帶護照
+        // null 表示沒帶護照
+        Passport passport = passportName.trim().isEmpty() ? null : new Passport(passportName);
 
         double weight = readNonNegDouble("3. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
 
         boolean hasProhibitedItems = readBool("4. 行李是否包含違禁品 (true / false)：");
 
-        // 重量 > 0 才建立行李物件
+        // 若重量大於 0 才建立行李物件
         Baggage baggage = (weight > 0) ? new Baggage(weight, hasProhibitedItems) : null;
 
         String ticketOwner = readString("5. 請輸入機票購買人姓名：", false);
@@ -85,7 +85,6 @@ public class AirportSystem
 
         // 指定旅客搭乘陣列的第一個航班
         Flight flight = flights[0];
-
         // 隨機抽一個艙等
         CabinClass[] classes = CabinClass.values();
         CabinClass cabinClass = classes[random.nextInt(classes.length)];
@@ -108,15 +107,14 @@ public class AirportSystem
         Processable security = new SecurityCheck();
         Processable gate = new BoardingGate(flight);
 
-        // 通關流程開始
-        System.out.println("--- 旅客抵達機場 ---");
-        System.out.println("旅客所持機票航班: " + flight.getNumber());
-        System.out.println("機票艙等: " + passenger.getTicket().getCabinClass());
-        System.out.println("目的地: " + flight.getDestination());
-        System.out.println("登機時間: " + flight.getBoardingTime());
-        System.out.println("預計起飛時間: " + flight.getDepartureTime());
-        System.out.println("預計抵達時間: " + flight.getArrivalTime());
-        System.out.println("--------------------");
+        // 顯示旅客訊息
+        System.out.println("\n=============================================");
+        System.out.println("       [桃園國際機場 (TPE) 離境通關系統]       ");
+        System.out.println("=============================================");
+        System.out.printf(" 旅客姓名: %-10s | 艙等: %s%n", passenger.getName(), passenger.getTicket().getCabinClass());
+        System.out.printf(" 航班編號: %-10s | 目的地: %s%n", flight.getNumber(), flight.getDestination());
+        System.out.printf(" 登機時間: %-10s | 起飛時間: %s%n", flight.getBoardingTime(), flight.getDepartureTime());
+        System.out.println("=============================================\n");
 
         // 集中攔截機場通關異常
         try
@@ -129,9 +127,15 @@ public class AirportSystem
 
             pause("登機門");
             gate.process(passenger);
-        } catch (AirportException e)
+
+            System.out.println("=============================================");
+            System.out.println(" [航站廣播] 旅客 " + passenger.getName() + " 已順利登機，祝您旅途愉快！");
+            System.out.println("=============================================\n");
+        }
+        catch (AirportException e)
         {
-            System.out.println("通關流程異常中斷：" + e.getMessage() + "\n");
+            System.out.println(" [系統攔截] 通關程序終止: " + e.getMessage() + "\n");
+            System.out.println("=============================================\n");
         }
     }
 
@@ -157,10 +161,10 @@ public class AirportSystem
                 f.getNumber(), f.getDestination(), f.getBoardingTime());
     }
     
-    // 輔助函式：等待使用者確認系統訊息
+    // 輔助函式：系統訊息的停頓
     private static void pause(String location)
     {
-        System.out.print("\n[系統] 即將前往【" + location + "】, 按下Enter繼續...");
+        System.out.print("[系統提示] 旅客正前往【" + location + "】... 請按 Enter 鍵確認以繼續 >>> ");
         scanner.nextLine();
     }
 
@@ -177,11 +181,11 @@ public class AirportSystem
                 if (value >= 0)
                     return value;
 
-                System.out.println("錯誤：重量不能為負數，請重新輸入！\n");
+                System.out.println("  [輸入錯誤] 重量不能為負數，請重新輸入！\n");
             }
             catch (NumberFormatException e)
             {
-                System.out.println("錯誤：請輸入有效的數字格式！\n");
+                System.out.println("  [輸入錯誤] 請輸入有效的數字格式！\n");
             }
         }
     }
@@ -197,7 +201,7 @@ public class AirportSystem
             if (allowEmpty || !input.trim().isEmpty())
                 return input;
 
-            System.out.println("錯誤：此欄位不能為空，請重新輸入！\n");
+            System.out.println("  [輸入錯誤] 此欄位不能為空，請重新輸入！\n");
         }
     }
 
@@ -214,7 +218,7 @@ public class AirportSystem
             if (input.equals("false"))
                 return false;
             
-            System.out.println("錯誤：請輸入 true 或 false！\n");
+            System.out.println("  [輸入錯誤] 請輸入 true 或 false！\n");
         }
     }
 }

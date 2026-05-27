@@ -12,7 +12,7 @@ public class SecurityCheck implements Processable
     @Override
     public void process(Passenger passenger)
     {
-        System.out.println("安檢站處理中... 旅客：" + passenger.getName());
+        System.out.println("  [安檢掃描系統] 啟動身分核驗與 X 光檢查，旅客：" + passenger.getName());
 
         // 檢查：是否已經報到 (CHECKED_IN)
         if (passenger.getTicket().getState() != TicketState.CHECKED_IN)
@@ -35,6 +35,6 @@ public class SecurityCheck implements Processable
 
         // 所有檢查皆通過，更新狀態為 SECURITY_CLEARED
         passenger.getTicket().setState(TicketState.SECURITY_CLEARED);
-        System.out.println("安檢通過！已確認護照，狀態更新為：SECURITY_CLEARED\n");
+        System.out.println("  [安檢掃描系統] 核驗通過！已確認護照，狀態更新為：SECURITY_CLEARED\n");
     }
 }
