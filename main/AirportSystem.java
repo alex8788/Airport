@@ -42,7 +42,7 @@ public class AirportSystem
         runAirportFlow(passenger);
     }
 
-    // 建立 3 個航班並儲存至陣列，並顯示航班資訊
+    // 建立 3 個航班，並顯示航班資訊
     private static void initializeFlights()
     {
         System.out.println("--- 當前機場航班看板 ---");
@@ -66,7 +66,7 @@ public class AirportSystem
 
         // 旅客抵達機場前，已經買好機票並整理好行李
         Baggage baggage = new Baggage(15.5, false); // 行李 15.5kg，無違禁品
-        Ticket ticket = new Ticket(flight.getFlightNumber(), cabinClass, name); // 預先購買好的機票
+        Ticket ticket = new Ticket(flight.getNumber(), cabinClass, name); // 預先購買好的機票
 
         // 預先準備好的護照
         Passport passport = new Passport(name);
@@ -94,12 +94,12 @@ public class AirportSystem
 
         // 通關流程開始
         System.out.println("--- 旅客抵達機場 ---");
-        System.out.println("旅客所持機票航班: " + flight.getFlightNumber());
+        System.out.println("旅客所持機票航班: " + flight.getNumber());
         System.out.println("機票艙等: " + passenger.getTicket().getCabinClass());
         System.out.println("目的地: " + flight.getDestination());
-        System.out.println("登機時間: " + flight.getBoardingTimeStr());
-        System.out.println("預計起飛時間: " + flight.getDepartureTimeStr());
-        System.out.println("預計抵達時間: " + flight.getArrivalTimeStr());
+        System.out.println("登機時間: " + flight.getBoardingTime());
+        System.out.println("預計起飛時間: " + flight.getDepartureTime());
+        System.out.println("預計抵達時間: " + flight.getArrivalTime());
         System.out.println("--------------------");
 
         // 集中攔截機場通關異常
@@ -124,7 +124,7 @@ public class AirportSystem
     {
         for (Flight f : flights)
         {
-            if (f != null && f.getFlightNumber().equals(flightNumber))
+            if (f != null && f.getNumber().equals(flightNumber))
                 return f;
         }
         return null;
@@ -149,7 +149,7 @@ public class AirportSystem
     // 顯示當前某航班的資訊
     private static void showFlightInfo(Flight f)
     {
-        System.out.println(
-                "航班: " + f.getFlightNumber() + " | 目的地: " + f.getDestination() + " | 登機時間: " + f.getBoardingTimeStr());
+        System.out
+                .println("航班: " + f.getNumber() + " | 目的地: " + f.getDestination() + " | 登機時間: " + f.getBoardingTime());
     }
 }
