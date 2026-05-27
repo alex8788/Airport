@@ -46,21 +46,15 @@ public class AirportSystem
 
     public static void main(String[] args)
     {
-        // 一次性建立並顯示 3 個當前航班
         initializeFlights();
-
-        // 初始化旅客物件, 並輸入相關資訊
         Passenger passenger = setupPassenger();
-        // 旅客開始進行機場通關流程
         runAirportFlow(passenger);
-
-        scanner.close();
     }
 
-    // 建立 3 個航班，並顯示航班資訊
+    // 建立當期個航線(3條)，並印出航班資訊
     private static void initializeFlights()
     {
-        System.out.println("--- 當前機場航班看板 ---");
+        System.out.println("--- 機場航班看板 ---");
         for (int i = 0; i < flights.length; i++)
         {
             flights[i] = createRandomFlight();
@@ -73,46 +67,37 @@ public class AirportSystem
     private static Passenger setupPassenger()
     {
         System.out.println("--- 請輸入旅客資訊 ---");
+        String name = readString("1. 請輸入旅客姓名：", false);
 
-        System.out.print("1. 請輸入旅客姓名：");
-        String name = scanner.nextLine();
+        String passportName = readString("2. 請輸入護照上的姓名 (若未攜帶請直接略過)：", true);
+        
+        Passport passport = passportName.trim().isEmpty() ? null : new Passport(passportName);  // null 表示沒帶護照
 
-        System.out.print("2. 請輸入護照上的姓名 (若未攜帶請直接略過)：");
-        String passportName = scanner.nextLine();
-        // null 表示沒帶護照
-        Passport passport = passportName.trim().isEmpty() ? null : new Passport(passportName);
+        double weight = readNonNegDouble("3. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
 
-        System.out.print("3. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
-        double weight = scanner.nextDouble();
+        boolean hasProhibitedItems = readBool("4. 行李是否包含違禁品 (true / false)：");
 
-        System.out.print("4. 行李是否包含違禁品 (true / false)：");
-        boolean hasProhibitedItems = scanner.nextBoolean();
+        // 重量 > 0 才建立行李物件
+        Baggage baggage = (weight > 0) ? new Baggage(weight, hasProhibitedItems) : null;
 
-        // 略過緩衝區的換行符
-        scanner.nextLine();
-
-        // 若重量大於 0 或有違禁品，才建立行李物件
-        Baggage baggage = (weight > 0 || hasProhibitedItems) ? new Baggage(weight, hasProhibitedItems) : null;
-
-        System.out.print("5. 請輸入機票購買人姓名：");
-        String ticketOwner = scanner.nextLine();
+        String ticketOwner = readString("5. 請輸入機票購買人姓名：", false);
         System.out.println("----------------------\n");
 
         // 指定旅客搭乘陣列的第一個航班
         Flight flight = flights[0];
 
-        // 隨機抽取一個艙等
+        // 隨機抽一個艙等
         CabinClass[] classes = CabinClass.values();
         CabinClass cabinClass = classes[random.nextInt(classes.length)];
 
-        // 使用使用者輸入的 ticketOwner 建立機票
+        // 依據使用者輸入的 ticketOwner 產生機票
         Ticket ticket = new Ticket(flight.getNumber(), cabinClass, ticketOwner);
 
         // 建立並回傳完整的旅客物件
         return new Passenger(name, passport, baggage, ticket);
     }
 
-    // 初始化機場關卡並進行通關流程
+    // 初始化機場關卡, 讓旅客進行通關流程
     private static void runAirportFlow(Passenger passenger)
     {
         // 假設旅客皆搭乘首個航班
@@ -150,13 +135,6 @@ public class AirportSystem
         }
     }
 
-    // 系統訊息輔助函式
-    private static void pause(String location)
-    {
-        System.out.print("\n[系統] 即將前往【" + location + "】, 按下Enter繼續...");
-        scanner.nextLine();
-    }
-
     // 隨機產生一個航班物件
     private static Flight createRandomFlight()
     {
@@ -175,7 +153,68 @@ public class AirportSystem
     // 顯示當前某航班的資訊
     private static void showFlightInfo(Flight f)
     {
-        System.out
-                .println("航班: " + f.getNumber() + " | 目的地: " + f.getDestination() + " | 登機時間: " + f.getBoardingTime());
+        System.out.printf("航班: %s | 目的地: %s | 登機時間: %s%n", 
+                f.getNumber(), f.getDestination(), f.getBoardingTime());
+    }
+    
+    // 輔助函式：等待使用者確認系統訊息
+    private static void pause(String location)
+    {
+        System.out.print("\n[系統] 即將前往【" + location + "】, 按下Enter繼續...");
+        scanner.nextLine();
+    }
+
+    // 輔助函式：讀取合法數值 (非負)
+    private static double readNonNegDouble(String prompt)
+    {
+        while (true)
+        {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            try
+            {
+                double value = Double.parseDouble(input);
+                if (value >= 0)
+                    return value;
+
+                System.out.println("錯誤：重量不能為負數，請重新輸入！\n");
+            }
+            catch (NumberFormatException e)
+            {
+                System.out.println("錯誤：請輸入有效的數字格式！\n");
+            }
+        }
+    }
+
+    // 輔助函式：讀取合法字串 (可控制輸入空字串)
+    private static String readString(String prompt, boolean allowEmpty)
+    {
+        while (true)
+        {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            
+            if (allowEmpty || !input.trim().isEmpty())
+                return input;
+
+            System.out.println("錯誤：此欄位不能為空，請重新輸入！\n");
+        }
+    }
+
+    // 輔助函式：讀取違禁品狀態
+    private static boolean readBool(String prompt)
+    {
+        while (true)
+        {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim().toLowerCase();
+            
+            if (input.equals("true"))
+                return true;
+            if (input.equals("false"))
+                return false;
+            
+            System.out.println("錯誤：請輸入 true 或 false！\n");
+        }
     }
 }

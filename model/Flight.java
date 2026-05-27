@@ -11,6 +11,8 @@ import java.util.Set;
 public class Flight
 {
     private static final String[] SEAT_LETTERS = { "A", "B", "C", "D", "E", "F" };
+    private static final int MAX_ROWS = 30;  // 機艙座位排數
+    private static final Random RANDOM = new Random();  // 全域random物件
 
     private final String number; // 航班編號
     private final String destination; // 目的地
@@ -44,16 +46,16 @@ public class Flight
     // 隨機分配一個空的座位
     public String assignRandomSeat()
     {
-        Random random = new Random();
         String newSeat;
 
         // 只要座位被佔用，就重新生成
         do
         {
-            int row = random.nextInt(30) + 1; // 假設有 30 排 (1~30)
-            String letter = SEAT_LETTERS[random.nextInt(SEAT_LETTERS.length)];
+            int row = RANDOM.nextInt(MAX_ROWS) + 1;
+            String letter = SEAT_LETTERS[RANDOM.nextInt(SEAT_LETTERS.length)];
             newSeat = row + letter;
-        } while (occupiedSeats.contains(newSeat));
+        }
+        while (occupiedSeats.contains(newSeat));
 
         // 找到沒人坐的位置後，加入已佔用名單並回傳
         occupiedSeats.add(newSeat);
