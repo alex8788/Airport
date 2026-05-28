@@ -40,7 +40,7 @@
 
 ### 3. 機場關卡服務（Service Checkpoints）
 
-#### **通關標準規則（`Processable`）**
+#### **機場通關介面（`Processable`）**
 * **說明**：這是一個介面（規則約定），規定機場裡所有的「關卡」都必須具備處理旅客（`process`）的能力，讓系統能標準化作業。
 
 #### **三大實體關卡（`CheckInCounter`, `SecurityCheck`, `BoardingGate`）**
@@ -83,7 +83,7 @@
 
 **階段三：報到櫃檯（Check-in Counter）**
 * 旅客物件進入地勤報到系統 `CheckInCounter`。
-* 系統檢查機票購買者 `ticket.getOwner()` 與本名 `passenger.getName()` 是否一致，並秤重確認行李沒有超出艙等上限。
+* 系統檢查機票購買者 `ticket.getOwner()` 與本名 `passenger.getName()` 是否一致，然後秤重確認行李沒有超出艙等上限，同時檢查是否攜帶違禁品。
 * 檢查通過後，呼叫航班的隨機劃位功能 `flight.assignRandomSeat()`，將機票狀態更新為「已報到」（`CHECKED_IN`），並在畫面上印出專屬的雙走道座位表，用 `[P]` 標示出旅客的位置。
 
 **階段四：安檢管制區（Security Check）**
