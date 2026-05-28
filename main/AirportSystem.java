@@ -49,6 +49,9 @@ public class AirportSystem
         initializeFlights();
         Passenger passenger = setupPassenger();
         runAirportFlow(passenger);
+
+        System.out.println("\n[系統提示] 按 Enter 鍵關閉視窗...");
+        scanner.nextLine();
     }
 
     // 建立當期個航線(3條)，並印出航班資訊
