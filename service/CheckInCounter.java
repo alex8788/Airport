@@ -111,7 +111,7 @@ public class CheckInCounter implements Processable
         }
     }
 
-    // 輸入輔助函式 (重量)
+    // 輸入輔助函式 (非負數值)
     private double readNonNegDouble(String prompt)
     {
         while (true)
