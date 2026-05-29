@@ -73,8 +73,9 @@ public class AirportSystem
 
         String name = readString("1. 請輸入旅客姓名：", false);
 
-        String passportName = readString("2. 請輸入護照上的姓名 (若未攜帶請直接略過)：", true);
-        Passport passport = passportName.trim().isEmpty() ? null : new Passport(passportName);
+        String passportName = readString("2. 請輸入護照上的姓名：", false);
+        String passportNum = readString("   請輸入護照號碼：", false);
+        Passport passport = new Passport(passportName, passportNum);
 
         double weight = readNonNegDouble("3. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
 
