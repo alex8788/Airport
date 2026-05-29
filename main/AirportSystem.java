@@ -17,14 +17,14 @@ import service.BoardingGate;
 import service.CheckInCounter;
 import service.Processable;
 import service.SecurityCheck;
+import service.TicketMachine;
 
 public class AirportSystem
 {
-    // 全域的輔助物件
     private static final Random random = new Random();
     private static final Scanner scanner = new Scanner(System.in);
 
-    // 航線列舉：包含目的地與飛行時間
+    // 航線列舉：含目的地與飛行時間
     private enum Route
     {
         BR198("東京(NRT)", 200), BR159("首爾(ICN)", 150), CI909("香港(HKG)", 100), CI751("新加坡(SIN)", 280),
@@ -41,42 +41,41 @@ public class AirportSystem
     }
 
     // 當前航班陣列
-    private static final Flight[] flights = new Flight[3];
-    // 訂票紀錄集合
+    private static final Flight[] flights = new Flight[6];
+    // 系統訂票紀錄
     private static final List<Booking> bookings = new ArrayList<>();
 
     public static void main(String[] args)
     {
-        initializeFlights();
-        setupBookings();
+        initFlights();  // 初始化航班與虛擬訂票紀錄
 
+        // 1. 旅客操作機台購票
+        TicketMachine machine = new TicketMachine();
+        machine.start(flights, bookings);
+
+        // 2. 旅客攜帶護照與行李, 開始通關
         Passenger passenger = setupPassenger();
         runAirportFlow(passenger);
 
         System.out.println("\n[系統提示] 按 Enter 鍵關閉視窗...");
         scanner.nextLine();
     }
-
-    // 初始化後台訂票紀錄
-    private static void setupBookings()
+    
+    private static void initFlights()
     {
-        // 當前旅客的訂票紀錄
-        bookings.add(new Booking("Tom", "123456789", flights[0].getNumber(), CabinClass.ECONOMY));
-        // 寫死兩筆其他旅客訂票紀錄
-        bookings.add(new Booking("Mia", "A11223344", flights[1].getNumber(), CabinClass.BUSINESS));
-        bookings.add(new Booking("Jason", "B99887766", flights[2].getNumber(), CabinClass.FIRST));
-    }
-
-    // 建立當期航線，並顯示航班資訊
-    private static void initializeFlights()
-    {
-        System.out.println("--- 機場航班看板 ---");
+        Route[] routes = Route.values();
         for (int i = 0; i < flights.length; i++)
         {
-            flights[i] = createRandomFlight();
-            showFlightInfo(flights[i]);
+            Route r = routes[i];
+            int hr = random.nextInt(17) + 6;
+            int min = random.nextInt(6) * 10;
+            
+            flights[i] = new Flight(r.name(), r.destination, LocalTime.of(hr, min), r.duration);
+            flights[i].preOccupySeats(30); // 提早為每班飛機預先佔位
         }
-        System.out.println("------------------------\n");
+
+        bookings.add(new Booking("林小華", "A11223344", flights[1].getNumber(), CabinClass.BUSINESS));
+        bookings.add(new Booking("陳阿明", "B99887766", flights[2].getNumber(), CabinClass.FIRST));
     }
 
     // 輸入旅客資訊, 初始化旅客物件
@@ -107,21 +106,9 @@ public class AirportSystem
     // 初始化機場關卡, 讓旅客進行通關流程
     private static void runAirportFlow(Passenger passenger)
     {
-        Flight flight = flights[0];  // 假設當前旅客搭乘首個航班
-        flight.preOccupySeats(30);  // 同班機其他乘客的座位
-
-        Processable counter = new CheckInCounter(flight, bookings);
+        Processable counter = new CheckInCounter(flights, bookings);
         Processable security = new SecurityCheck();
-        Processable gate = new BoardingGate(flight);
-
-        // 顯示旅客訊息
-        System.out.println("\n=============================================");
-        System.out.println("       [桃園國際機場 (TPE) 離境通關系統]       ");
-        System.out.println("=============================================");
-        System.out.printf(" 旅客姓名: %-10s | 護照號碼: %s%n", passenger.getName(), passenger.getPassport().getNumber());
-        System.out.printf(" 航班編號: %-10s | 目的地: %s%n", flight.getNumber(), flight.getDestination());
-        System.out.printf(" 登機時間: %-10s | 起飛時間: %s%n", flight.getBoardingTime(), flight.getDepartureTime());
-        System.out.println("=============================================\n");
+        Processable gate = new BoardingGate(flights);
 
         // 集中攔截機場通關異常
         try
@@ -129,7 +116,7 @@ public class AirportSystem
             pause("報到櫃檯");
             counter.process(passenger);
 
-            showPass(passenger, flight);
+            showPass(passenger);
 
             pause("安檢站");
             security.process(passenger);
@@ -147,31 +134,11 @@ public class AirportSystem
         }
     }
 
-    // 輔助函式：隨機產生一個航班物件
-    private static Flight createRandomFlight()
-    {
-        // 隨機抽取一條航線
-        Route[] routes = Route.values();
-        Route route = routes[random.nextInt(routes.length)];
-
-        // 隨機生成登機時間 (時: 6~22，分: 10的倍數)
-        int hr = random.nextInt(17) + 6; // 6 到 22 時
-        int min = random.nextInt(6) * 10; // 0, 10, 20, 30, 40, 50 分
-        LocalTime boardingTime = LocalTime.of(hr, min);
-
-        return new Flight(route.name(), route.destination, boardingTime, route.duration);
-    }
-
-    // 輔助函式：顯示當前某航班的資訊
-    private static void showFlightInfo(Flight f)
-    {
-        System.out.printf("航班: %s | 目的地: %s | 登機時間: %s%n", f.getNumber(), f.getDestination(), f.getBoardingTime());
-    }
-
     // 輔助函式：顯示離境通關系統訊息
-    private static void showPass(Passenger passenger, Flight flight)
+    private static void showPass(Passenger passenger)
     {
         BoardingPass pass = passenger.getBoardingPass();
+        Flight flight = getFlight(pass.getFlightNum());
 
         System.out.println("\n=============================================");
         System.out.println("       [桃園國際機場 (TPE) 離境通關系統]       ");
@@ -180,6 +147,16 @@ public class AirportSystem
         System.out.printf(" 航班編號: %-10s | 目的地: %s%n", flight.getNumber(), flight.getDestination());
         System.out.printf(" 登機時間: %-10s | 起飛時間: %s%n", flight.getBoardingTime(), flight.getDepartureTime());
         System.out.println("=============================================\n");
+    }
+
+    // 輔助函式：取得航班物件
+    private static Flight getFlight(String flightNum)
+    {
+        for (Flight f : flights)
+        {
+            if (f.getNumber().equals(flightNum)) return f;
+        }
+        return null;
     }
 
     // 輔助函式：系統訊息的停頓
