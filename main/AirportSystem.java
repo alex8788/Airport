@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import model.Baggage;
 import model.BoardingPass;
 import model.Booking;
 import model.CabinClass;
@@ -91,11 +90,6 @@ public class AirportSystem
         String passportNum = readString("   請輸入護照號碼：", false);
         Passport passport = new Passport(passportName, passportNum);
 
-        // 行李資訊
-        double weight = readNonNegDouble("2. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
-        boolean hasProhibitedItems = readBool("3. 行李是否包含違禁品 (true / false)：");
-        Baggage baggage = (weight > 0) ? new Baggage(weight, hasProhibitedItems) : null;
-
         System.out.println("----------------------\n");
 
         // 旅客建立時，姓名沿用護照名字，且尚未領取實體登機證
@@ -172,27 +166,6 @@ public class AirportSystem
         scanner.nextLine();
     }
 
-    // 輔助函式：讀取合法數值 (非負)
-    private static double readNonNegDouble(String prompt)
-    {
-        while (true)
-        {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
-            try
-            {
-                double value = Double.parseDouble(input);
-                if (value >= 0)
-                    return value;
-
-                System.out.println("  [輸入錯誤] 重量不能為負數，請重新輸入！\n");
-            } catch (NumberFormatException e)
-            {
-                System.out.println("  [輸入錯誤] 請輸入有效的數字格式！\n");
-            }
-        }
-    }
-
     // 輔助函式：讀取合法字串 (可控制輸入空字串)
     private static String readString(String prompt, boolean allowEmpty)
     {
@@ -205,23 +178,6 @@ public class AirportSystem
                 return input;
 
             System.out.println("  [輸入錯誤] 此欄位不能為空，請重新輸入！\n");
-        }
-    }
-
-    // 輔助函式：讀取違禁品狀態
-    private static boolean readBool(String prompt)
-    {
-        while (true)
-        {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim().toLowerCase();
-
-            if (input.equals("true"))
-                return true;
-            if (input.equals("false"))
-                return false;
-
-            System.out.println("  [輸入錯誤] 請輸入 true 或 false！\n");
         }
     }
 }

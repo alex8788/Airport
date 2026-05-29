@@ -30,24 +30,8 @@ public class CheckInCounter implements Processable
     {
         System.out.println("  [地勤報到系統] 開始處理，旅客：" + passenger.getName());
 
-        // 1. 根據護照號碼，查詢訂票紀錄
-        String passportNum = passenger.getPassport().getNumber();
-
-        Booking booking = null;
-        for (Booking b : bookings)
-        {
-            if (b.getPassportNum().equals(passportNum))
-            {
-                booking = b;
-                break;
-            }
-        }
-
-        // 找不到訂票紀錄
-        if (booking == null)
-        {
-            throw new AirportException("報到櫃檯失敗：找不到護照號碼 [" + passportNum + "] 的訂票紀錄！");
-        }
+        // 1. 查詢訂票紀錄與身分核對
+        Booking booking = findBooking(passenger.getPassport().getNumber());
 
         // 檢查：姓名是否相符 (護照 vs 訂票紀錄)
         if (!passenger.getPassport().getName().equals(booking.getName()))
@@ -57,33 +41,10 @@ public class CheckInCounter implements Processable
 
         // 1.5 由訂票紀錄產生登機證
         BoardingPass pass = booking.getBoardingPass();
-
         System.out.println("  [地勤報到系統] 查獲訂票紀錄！旅客姓名：" + booking.getName() + "，艙等：" + pass.getCabinClass());
 
         // 2. 行李託運
-        System.out.println("\n  [地勤報到系統] 請將行李放上磅秤...");
-        double weight = readNonNegDouble("  >> 請輸入行李重量 (kg，無託運請輸入 0)：");
-        boolean hasContraband = false;
-
-        if (weight > 0)
-        {
-            System.out.print("  >> 行李是否包含違禁品 (true / false)：");
-            hasContraband = Boolean.parseBoolean(scanner.nextLine().trim());
-            
-            // 產生行李物件，並綁定給旅客
-            Baggage baggage = new Baggage(weight, hasContraband);
-            passenger.setBaggage(baggage);
-
-            // 檢查：違禁品 或 超重
-            if (hasContraband)
-            {
-                throw new BaggageException("報到櫃檯");
-            }
-            if (weight > pass.getCabinClass().getMaxWeight())
-            {
-                throw new BaggageException("報到櫃檯", baggage, pass);
-            }
-        }
+        processBaggage(passenger, pass);
 
         // 3. 自動劃位與打印座位表
         System.out.println("\n  [地勤報到系統] 行李檢查通過。系統正在為您尋找空位...");
@@ -98,7 +59,59 @@ public class CheckInCounter implements Processable
         System.out.println("  [地勤報到系統] 報到完成！已發放登機證。座位：" + pass.getSeatId() + "，狀態更新為：CHECKED_IN\n");
     }
 
-    // 輸入輔助函式
+    // 查詢旅客訂票紀錄
+    private Booking findBooking(String passportNum)
+    {
+        for (Booking b : bookings)
+        {
+            if (b.getPassportNum().equals(passportNum))
+            {
+                return b;
+            }
+        }
+        throw new AirportException("報到櫃檯失敗：找不到護照號碼 [" + passportNum + "] 的訂票紀錄！");
+    }
+
+    // 行李託運與檢查
+    private void processBaggage(Passenger passenger, BoardingPass pass)
+    {
+        System.out.println("\n  [地勤報到系統] 請將行李放上磅秤...");
+        double weight = readNonNegDouble("  >> 請輸入行李重量 (kg，無託運請輸入 0)：");
+
+        if (weight > 0)
+        {
+            boolean hasContraband = readBool("  >> 行李是否包含違禁品 (true / false)：");
+            Baggage baggage = new Baggage(weight, hasContraband);
+            passenger.setBaggage(baggage);
+
+            // 檢查：違禁品或超重
+            if (hasContraband)
+            {
+                throw new BaggageException("報到櫃檯");
+            }
+            if (weight > pass.getCabinClass().getMaxWeight())
+            {
+                throw new BaggageException("報到櫃檯", baggage, pass);
+            }
+        }
+    }
+
+    // 輸入輔助函式 (Boolean)
+    private boolean readBool(String prompt)
+    {
+        while (true)
+        {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim().toLowerCase();
+
+            if (input.equals("true")) return true;
+            if (input.equals("false")) return false;
+
+            System.out.println("  [輸入錯誤] 請輸入 true 或 false！");
+        }
+    }
+
+    // 輸入輔助函式 (重量)
     private double readNonNegDouble(String prompt)
     {
         while (true)
