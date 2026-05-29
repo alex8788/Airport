@@ -80,18 +80,18 @@ public class AirportSystem
         System.out.println("--- 請輸入旅客資訊 ---");
 
         // 1. 輸入護照資訊
-        String passportName = readString("1. 請輸入護照上的姓名：", false);
-        String passportNum = readString("   請輸入護照號碼：", false);
+        String passportName = util.InputUtil.readString("1. 請輸入護照上的姓名：", false);
+        String passportNum = util.InputUtil.readString("   請輸入護照號碼：", false);
         Passport passport = new Passport(passportName, passportNum);
 
         Passenger passenger = new Passenger(passportName, passport);
 
         // 2. 輸入行李資訊
-        double weight = readNonNegDouble("2. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
+        double weight = util.InputUtil.readNonNegDouble("2. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
         
         if (weight > 0)
         {
-            boolean hasProhibitedItems = readBool("3. 行李是否包含違禁品 (true / false)：");
+            boolean hasProhibitedItems = util.InputUtil.readBool("3. 行李是否包含違禁品 (true / false)：");
             passenger.setBaggage(new Baggage(weight, hasProhibitedItems));
         }
         System.out.println("----------------------\n");
@@ -149,55 +149,6 @@ public class AirportSystem
     private static void pause(String location)
     {
         System.out.print("[系統提示] 旅客正前往【" + location + "】... 請按 Enter 鍵確認以繼續 >>> ");
-        scanner.nextLine();
-    }
-
-    // 輔助函式：讀取合法字串 (可控制輸入空字串)
-    private static String readString(String prompt, boolean allowEmpty)
-    {
-        while (true)
-        {
-            System.out.print(prompt);
-            String input = scanner.nextLine();
-
-            if (allowEmpty || !input.trim().isEmpty())
-                return input;
-
-            System.out.println("  [輸入錯誤] 此欄位不能為空，請重新輸入！\n");
-        }
-    }
-
-    // 輔助函式：讀取非負數值
-    private static double readNonNegDouble(String prompt)
-    {
-        while (true)
-        {
-            System.out.print(prompt);
-            try
-            {
-                double val = Double.parseDouble(scanner.nextLine().trim());
-                if (val >= 0) return val;
-                System.out.println("  [輸入錯誤] 重量不能為負數！");
-            }
-            catch (NumberFormatException e)
-            {
-                System.out.println("  [輸入錯誤] 請輸入有效的數字格式！");
-            }
-        }
-    }
-
-    // 輔助函式：讀取合法 Boolean
-    private static boolean readBool(String prompt)
-    {
-        while (true)
-        {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim().toLowerCase();
-
-            if (input.equals("true")) return true;
-            if (input.equals("false")) return false;
-
-            System.out.println("  [輸入錯誤] 請輸入 true 或 false！");
-        }
+        util.InputUtil.SCANNER.nextLine();
     }
 }

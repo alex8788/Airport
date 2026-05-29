@@ -2,7 +2,7 @@ package model;
 
 public class BoardingPass
 {
-    private final Flight flight;  // 航班物件
+    private final Flight flight; // 航班物件
     private final CabinClass cabinClass; // 艙等
     private final String owner; // 持有者姓名
     private String seatId; // 座位編號
@@ -38,7 +38,7 @@ public class BoardingPass
         return seatId;
     }
 
-    public void assignSeat(String seatId)
+    public void setSeatId(String seatId)
     {
         this.seatId = seatId;
     }

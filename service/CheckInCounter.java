@@ -26,6 +26,21 @@ public class CheckInCounter implements Processable
         System.out.println("  [地勤報到系統] 開始處理，旅客：" + passenger.getName());
 
         // 1. 查詢訂票紀錄與身分核對
+        Booking booking = verifyBooking(passenger);
+
+        // 2. 行李託運檢查
+        checkBaggage(passenger, booking);
+
+        // 3. 自動劃位
+        String seat = arrangeSeat(booking.getFlight());
+
+        // 4. 發放登機證
+        issueBoardingPass(passenger, booking, seat);
+    }
+
+    // 身分核對
+    private Booking verifyBooking(Passenger passenger)
+    {
         Booking booking = findBooking(passenger.getPassport().getNumber());
 
         // 檢查：姓名是否相符 (護照 vs 訂票紀錄)
@@ -35,11 +50,12 @@ public class CheckInCounter implements Processable
         }
 
         System.out.println("  [地勤報到系統] 查獲訂票紀錄！旅客姓名：" + booking.getName() + "，艙等：" + booking.getCabinClass());
+        return booking;
+    }
 
-        // 取得旅客所屬的航班
-        Flight flight = booking.getFlight();
-
-        // 2. 行李託運
+    // 行李託運檢查
+    private void checkBaggage(Passenger passenger, Booking booking)
+    {
         Baggage baggage = passenger.getBaggage();
         if (baggage != null)
         {
@@ -53,15 +69,22 @@ public class CheckInCounter implements Processable
                 throw new BaggageException("報到櫃檯", baggage, booking.getCabinClass());
             }
         }
+    }
 
-        // 3. 自動劃位與打印座位表
+    // 自動劃位
+    private String arrangeSeat(Flight flight)
+    {
         System.out.println("\n  [地勤報到系統] 行李檢查通過。系統正在為您尋找空位...");
-        String newSeat = flight.assignRandomSeat();
-        flight.printSeatMap(newSeat);
+        String newSeat = flight.assignSeat();
+        flight.showSeatMap(newSeat);
+        return newSeat;
+    }
 
-        // 4. 生成登機證並發放給旅客
-        BoardingPass pass = new BoardingPass(flight, booking.getCabinClass(), booking.getName());
-        pass.assignSeat(newSeat);
+    // 發放登機證
+    private void issueBoardingPass(Passenger passenger, Booking booking, String seat)
+    {
+        BoardingPass pass = new BoardingPass(booking.getFlight(), booking.getCabinClass(), booking.getName());
+        pass.setSeatId(seat);
         pass.setState(BoardingPassState.CHECKED_IN);
         passenger.setBoardingPass(pass);
 
@@ -71,9 +94,7 @@ public class CheckInCounter implements Processable
     // 查詢旅客訂票紀錄
     private Booking findBooking(String passportNum)
     {
-        return bookings.stream()
-                .filter(b -> b.getPassportNum().equals(passportNum))
-                .findFirst()
+        return bookings.stream().filter(b -> b.getPassportNum().equals(passportNum)).findFirst()
                 .orElseThrow(() -> new AirportException("報到櫃檯失敗：找不到護照號碼 [" + passportNum + "] 的訂票紀錄！"));
     }
 }
