@@ -4,13 +4,13 @@ public class Booking
 {
     private final String name;
     private final String passportNum;
-    private final Ticket ticket;
+    private final BoardingPass boardingPass;
 
-    public Booking(String name, String passportNum, Ticket ticket)
+    public Booking(String name, String passportNum, BoardingPass ticket)
     {
         this.name = name;
         this.passportNum = passportNum;
-        this.ticket = ticket;
+        this.boardingPass = ticket;
     }
 
     public String getName()
@@ -23,8 +23,8 @@ public class Booking
         return passportNum;
     }
 
-    public Ticket getTicket()
+    public BoardingPass getBoardingPass()
     {
-        return ticket;
+        return boardingPass;
     }
 }

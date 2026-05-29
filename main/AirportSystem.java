@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import model.Baggage;
+import model.BoardingPass;
 import model.Booking;
 import model.CabinClass;
 import model.Flight;
 import model.Passenger;
 import model.Passport;
-import model.Ticket;
 import service.BoardingGate;
 import service.CheckInCounter;
 import service.Processable;
@@ -43,7 +43,7 @@ public class AirportSystem
     // 當前航班陣列
     private static final Flight[] flights = new Flight[3];
     // 訂票紀錄集合
-    private static final List<Booking> bookingRecords = new ArrayList<>();
+    private static final List<Booking> bookings = new ArrayList<>();
 
     public static void main(String[] args)
     {
@@ -60,14 +60,13 @@ public class AirportSystem
     // 初始化後台訂票紀錄
     private static void setupBookings()
     {
-        // 寫死兩筆其他旅客訂票紀錄 (機票物件暫設為 null)
-        bookingRecords.add(new Booking("林小華", "A11223344", null));
-        bookingRecords.add(new Booking("陳阿明", "B99887766", null));
+        // 寫死兩筆其他旅客訂票紀錄 (包含各自的航班、艙等、購票者)
+        bookings.add(new Booking("林小華", "A11223344", new BoardingPass(flights[1].getNumber(), CabinClass.BUSINESS, "林小華")));
+        bookings.add(new Booking("陳阿明", "B99887766", new BoardingPass(flights[2].getNumber(), CabinClass.FIRST, "陳阿明")));
 
-        // 當前旅客的訂票紀錄 (護照號碼固定為 123456789)
-        Flight flight = flights[0];
-        Ticket ticket = new Ticket(flight.getNumber(), CabinClass.ECONOMY, "王大明");
-        bookingRecords.add(new Booking("王大明", "123456789", ticket));
+        // 一筆當前旅客的訂票紀錄 (護照號碼固定為 123456789)
+        BoardingPass pass = new BoardingPass(flights[0].getNumber(), CabinClass.ECONOMY, "王大明");
+        bookings.add(new Booking("王大明", "123456789", pass));
     }
 
     // 建立當期航線(3條)，並印出航班資訊
@@ -100,7 +99,7 @@ public class AirportSystem
         System.out.println("----------------------\n");
 
         // 旅客建立時，姓名沿用護照名字，且尚未領取實體登機證
-        return new Passenger(passportName, passport, baggage, null);
+        return new Passenger(passportName, passport);
     }
 
     // 初始化機場關卡, 讓旅客進行通關流程
@@ -110,7 +109,7 @@ public class AirportSystem
         Flight flight = flights[0];
 
         // 報到櫃檯需要連線到後台查詢訂票紀錄
-        Processable counter = new CheckInCounter(flight, bookingRecords);
+        Processable counter = new CheckInCounter(flight, bookings);
         Processable security = new SecurityCheck();
         Processable gate = new BoardingGate(flight);
 
@@ -118,7 +117,7 @@ public class AirportSystem
         System.out.println("\n=============================================");
         System.out.println("       [桃園國際機場 (TPE) 離境通關系統]       ");
         System.out.println("=============================================");
-        System.out.printf(" 旅客姓名: %-10s | 艙等: %s%n", passenger.getName(), passenger.getTicket().getCabinClass());
+        System.out.printf(" 旅客姓名: %-10s | 艙等: %s%n", passenger.getName(), passenger.getBoardingPass().getCabinClass());
         System.out.printf(" 航班編號: %-10s | 目的地: %s%n", flight.getNumber(), flight.getDestination());
         System.out.printf(" 登機時間: %-10s | 起飛時間: %s%n", flight.getBoardingTime(), flight.getDepartureTime());
         System.out.println("=============================================\n");
