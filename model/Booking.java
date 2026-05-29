@@ -2,15 +2,17 @@ package model;
 
 public class Booking
 {
-    private final String name;
-    private final String passportNum;
-    private final BoardingPass boardingPass;
+    private final String name;  // 購票者姓名
+    private final String passportNum;  // 護照號碼
+    private final String flightNum; // 航班編號
+    private final CabinClass cabinClass;  // 艙等
 
-    public Booking(String name, String passportNum, BoardingPass ticket)
+    public Booking(String name, String passportNum, String flightNum, CabinClass cabinClass)
     {
         this.name = name;
         this.passportNum = passportNum;
-        this.boardingPass = ticket;
+        this.flightNum = flightNum;
+        this.cabinClass = cabinClass;
     }
 
     public String getName()
@@ -23,8 +25,13 @@ public class Booking
         return passportNum;
     }
 
-    public BoardingPass getBoardingPass()
+    public String getFlightNum()
     {
-        return boardingPass;
+        return flightNum;
+    }
+
+    public CabinClass getCabinClass()
+    {
+        return cabinClass;
     }
 }

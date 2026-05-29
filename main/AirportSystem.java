@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import model.Baggage;
 import model.BoardingPass;
 import model.Booking;
 import model.CabinClass;
@@ -59,16 +60,14 @@ public class AirportSystem
     // 初始化後台訂票紀錄
     private static void setupBookings()
     {
-        // 寫死兩筆其他旅客訂票紀錄 (包含各自的航班、艙等、購票者)
-        bookings.add(new Booking("林小華", "A11223344", new BoardingPass(flights[1].getNumber(), CabinClass.BUSINESS, "林小華")));
-        bookings.add(new Booking("陳阿明", "B99887766", new BoardingPass(flights[2].getNumber(), CabinClass.FIRST, "陳阿明")));
-
-        // 一筆當前旅客的訂票紀錄 (護照號碼固定為 123456789)
-        BoardingPass pass = new BoardingPass(flights[0].getNumber(), CabinClass.ECONOMY, "王大明");
-        bookings.add(new Booking("王大明", "123456789", pass));
+        // 當前旅客的訂票紀錄
+        bookings.add(new Booking("Tom", "123456789", flights[0].getNumber(), CabinClass.ECONOMY));
+        // 寫死兩筆其他旅客訂票紀錄
+        bookings.add(new Booking("Mia", "A11223344", flights[1].getNumber(), CabinClass.BUSINESS));
+        bookings.add(new Booking("Jason", "B99887766", flights[2].getNumber(), CabinClass.FIRST));
     }
 
-    // 建立當期航線(3條)，並印出航班資訊
+    // 建立當期航線，並顯示航班資訊
     private static void initializeFlights()
     {
         System.out.println("--- 機場航班看板 ---");
@@ -85,24 +84,32 @@ public class AirportSystem
     {
         System.out.println("--- 請輸入旅客資訊 ---");
 
-        // 輸入護照資訊
+        // 1. 輸入護照資訊
         String passportName = readString("1. 請輸入護照上的姓名：", false);
         String passportNum = readString("   請輸入護照號碼：", false);
         Passport passport = new Passport(passportName, passportNum);
 
+        Passenger passenger = new Passenger(passportName, passport);
+
+        // 2. 輸入行李資訊
+        double weight = readNonNegDouble("2. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
+        
+        if (weight > 0)
+        {
+            boolean hasProhibitedItems = readBool("3. 行李是否包含違禁品 (true / false)：");
+            passenger.setBaggage(new Baggage(weight, hasProhibitedItems));
+        }
         System.out.println("----------------------\n");
 
-        // 旅客建立時，姓名沿用護照名字，且尚未領取實體登機證
-        return new Passenger(passportName, passport);
+        return passenger;
     }
 
     // 初始化機場關卡, 讓旅客進行通關流程
     private static void runAirportFlow(Passenger passenger)
     {
-        // 假設旅客皆搭乘首個航班
-        Flight flight = flights[0];
+        Flight flight = flights[0];  // 假設當前旅客搭乘首個航班
+        flight.preOccupySeats(30);  // 同班機其他乘客的座位
 
-        // 報到櫃檯需要連線到後台查詢訂票紀錄
         Processable counter = new CheckInCounter(flight, bookings);
         Processable security = new SecurityCheck();
         Processable gate = new BoardingGate(flight);
@@ -111,7 +118,7 @@ public class AirportSystem
         System.out.println("\n=============================================");
         System.out.println("       [桃園國際機場 (TPE) 離境通關系統]       ");
         System.out.println("=============================================");
-        System.out.printf(" 旅客姓名: %-10s | 艙等: %s%n", passenger.getName(), passenger.getBoardingPass().getCabinClass());
+        System.out.printf(" 旅客姓名: %-10s | 護照號碼: %s%n", passenger.getName(), passenger.getPassport().getNumber());
         System.out.printf(" 航班編號: %-10s | 目的地: %s%n", flight.getNumber(), flight.getDestination());
         System.out.printf(" 登機時間: %-10s | 起飛時間: %s%n", flight.getBoardingTime(), flight.getDepartureTime());
         System.out.println("=============================================\n");
@@ -121,6 +128,8 @@ public class AirportSystem
         {
             pause("報到櫃檯");
             counter.process(passenger);
+
+            showPass(passenger, flight);
 
             pause("安檢站");
             security.process(passenger);
@@ -138,7 +147,7 @@ public class AirportSystem
         }
     }
 
-    // 隨機產生一個航班物件
+    // 輔助函式：隨機產生一個航班物件
     private static Flight createRandomFlight()
     {
         // 隨機抽取一條航線
@@ -153,10 +162,24 @@ public class AirportSystem
         return new Flight(route.name(), route.destination, boardingTime, route.duration);
     }
 
-    // 顯示當前某航班的資訊
+    // 輔助函式：顯示當前某航班的資訊
     private static void showFlightInfo(Flight f)
     {
         System.out.printf("航班: %s | 目的地: %s | 登機時間: %s%n", f.getNumber(), f.getDestination(), f.getBoardingTime());
+    }
+
+    // 輔助函式：顯示離境通關系統訊息
+    private static void showPass(Passenger passenger, Flight flight)
+    {
+        BoardingPass pass = passenger.getBoardingPass();
+
+        System.out.println("\n=============================================");
+        System.out.println("       [桃園國際機場 (TPE) 離境通關系統]       ");
+        System.out.println("=============================================");
+        System.out.printf(" 旅客姓名: %-10s | 艙等: %s%n", passenger.getName(), pass.getCabinClass());
+        System.out.printf(" 航班編號: %-10s | 目的地: %s%n", flight.getNumber(), flight.getDestination());
+        System.out.printf(" 登機時間: %-10s | 起飛時間: %s%n", flight.getBoardingTime(), flight.getDepartureTime());
+        System.out.println("=============================================\n");
     }
 
     // 輔助函式：系統訊息的停頓
@@ -178,6 +201,40 @@ public class AirportSystem
                 return input;
 
             System.out.println("  [輸入錯誤] 此欄位不能為空，請重新輸入！\n");
+        }
+    }
+
+    // 輔助函式：讀取非負數值
+    private static double readNonNegDouble(String prompt)
+    {
+        while (true)
+        {
+            System.out.print(prompt);
+            try
+            {
+                double val = Double.parseDouble(scanner.nextLine().trim());
+                if (val >= 0) return val;
+                System.out.println("  [輸入錯誤] 重量不能為負數！");
+            }
+            catch (NumberFormatException e)
+            {
+                System.out.println("  [輸入錯誤] 請輸入有效的數字格式！");
+            }
+        }
+    }
+
+    // 輔助函式：讀取合法 Boolean
+    private static boolean readBool(String prompt)
+    {
+        while (true)
+        {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim().toLowerCase();
+
+            if (input.equals("true")) return true;
+            if (input.equals("false")) return false;
+
+            System.out.println("  [輸入錯誤] 請輸入 true 或 false！");
         }
     }
 }
