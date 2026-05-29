@@ -2,9 +2,12 @@ package main;
 
 import exception.AirportException;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import model.Baggage;
+import model.Booking;
 import model.CabinClass;
 import model.Flight;
 import model.Passenger;
@@ -24,12 +27,8 @@ public class AirportSystem
     // 航線列舉：包含目的地與飛行時間
     private enum Route
     {
-        BR198("東京(NRT)", 200),
-        BR159("首爾(ICN)", 150),
-        CI909("香港(HKG)", 100),
-        CI751("新加坡(SIN)", 280),
-        JX800("曼谷(BKK)", 220),
-        CX421("吉隆坡(KUL)", 270);
+        BR198("東京(NRT)", 200), BR159("首爾(ICN)", 150), CI909("香港(HKG)", 100), CI751("新加坡(SIN)", 280),
+        JX800("曼谷(BKK)", 220), CX421("吉隆坡(KUL)", 270);
 
         final String destination;
         final int duration;
@@ -40,13 +39,17 @@ public class AirportSystem
             this.duration = duration;
         }
     }
-    
+
     // 當前航班陣列
     private static final Flight[] flights = new Flight[3];
+    // 訂票紀錄集合
+    private static final List<Booking> bookingRecords = new ArrayList<>();
 
     public static void main(String[] args)
     {
         initializeFlights();
+        setupBookings();
+
         Passenger passenger = setupPassenger();
         runAirportFlow(passenger);
 
@@ -54,7 +57,20 @@ public class AirportSystem
         scanner.nextLine();
     }
 
-    // 建立當期個航線(3條)，並印出航班資訊
+    // 初始化後台訂票紀錄
+    private static void setupBookings()
+    {
+        // 寫死兩筆其他旅客訂票紀錄 (機票物件暫設為 null)
+        bookingRecords.add(new Booking("林小華", "A11223344", null));
+        bookingRecords.add(new Booking("陳阿明", "B99887766", null));
+
+        // 當前旅客的訂票紀錄 (護照號碼固定為 123456789)
+        Flight flight = flights[0];
+        Ticket ticket = new Ticket(flight.getNumber(), CabinClass.ECONOMY, "王大明");
+        bookingRecords.add(new Booking("王大明", "123456789", ticket));
+    }
+
+    // 建立當期航線(3條)，並印出航班資訊
     private static void initializeFlights()
     {
         System.out.println("--- 機場航班看板 ---");
@@ -71,37 +87,20 @@ public class AirportSystem
     {
         System.out.println("--- 請輸入旅客資訊 ---");
 
-        String name = readString("1. 請輸入旅客姓名：", false);
-
-        String passportName = readString("2. 請輸入護照上的姓名：", false);
+        // 輸入護照資訊
+        String passportName = readString("1. 請輸入護照上的姓名：", false);
         String passportNum = readString("   請輸入護照號碼：", false);
         Passport passport = new Passport(passportName, passportNum);
 
-        double weight = readNonNegDouble("3. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
-
-        boolean hasProhibitedItems = readBool("4. 行李是否包含違禁品 (true / false)：");
-
-        // 若重量大於 0 才建立行李物件
+        // 行李資訊
+        double weight = readNonNegDouble("2. 請輸入行李重量 (kg，輸入 0 代表無託運行李)：");
+        boolean hasProhibitedItems = readBool("3. 行李是否包含違禁品 (true / false)：");
         Baggage baggage = (weight > 0) ? new Baggage(weight, hasProhibitedItems) : null;
 
-        String ticketOwner = readString("5. 請輸入機票購買人姓名：", false);
         System.out.println("----------------------\n");
 
-        // 指定旅客搭乘陣列的第一個航班
-        Flight flight = flights[0];
-
-        // 分配其他乘客的座位 (預設 30 人)
-        flight.preOccupySeats(30);
-
-        // 分配一個艙等
-        CabinClass[] classes = CabinClass.values();
-        CabinClass cabinClass = classes[random.nextInt(classes.length)];
-
-        // 依據輸入的購買人姓名產生機票
-        Ticket ticket = new Ticket(flight.getNumber(), cabinClass, ticketOwner);
-
-        // 建立並回傳完整的旅客物件
-        return new Passenger(name, passport, baggage, ticket);
+        // 旅客建立時，姓名沿用護照名字，且尚未領取實體登機證
+        return new Passenger(passportName, passport, baggage, null);
     }
 
     // 初始化機場關卡, 讓旅客進行通關流程
@@ -110,8 +109,8 @@ public class AirportSystem
         // 假設旅客皆搭乘首個航班
         Flight flight = flights[0];
 
-        // 建立機場的各個關卡
-        Processable counter = new CheckInCounter(flight);
+        // 報到櫃檯需要連線到後台查詢訂票紀錄
+        Processable counter = new CheckInCounter(flight, bookingRecords);
         Processable security = new SecurityCheck();
         Processable gate = new BoardingGate(flight);
 
@@ -139,8 +138,7 @@ public class AirportSystem
             System.out.println("=============================================");
             System.out.println(" [航站廣播] 旅客 " + passenger.getName() + " 已順利登機，祝您旅途愉快！");
             System.out.println("=============================================\n");
-        }
-        catch (AirportException e)
+        } catch (AirportException e)
         {
             System.out.println(" [系統攔截] 通關程序終止: " + e.getMessage() + "\n");
             System.out.println("=============================================\n");
@@ -165,10 +163,9 @@ public class AirportSystem
     // 顯示當前某航班的資訊
     private static void showFlightInfo(Flight f)
     {
-        System.out.printf("航班: %s | 目的地: %s | 登機時間: %s%n", 
-                f.getNumber(), f.getDestination(), f.getBoardingTime());
+        System.out.printf("航班: %s | 目的地: %s | 登機時間: %s%n", f.getNumber(), f.getDestination(), f.getBoardingTime());
     }
-    
+
     // 輔助函式：系統訊息的停頓
     private static void pause(String location)
     {
@@ -190,8 +187,7 @@ public class AirportSystem
                     return value;
 
                 System.out.println("  [輸入錯誤] 重量不能為負數，請重新輸入！\n");
-            }
-            catch (NumberFormatException e)
+            } catch (NumberFormatException e)
             {
                 System.out.println("  [輸入錯誤] 請輸入有效的數字格式！\n");
             }
@@ -205,7 +201,7 @@ public class AirportSystem
         {
             System.out.print(prompt);
             String input = scanner.nextLine();
-            
+
             if (allowEmpty || !input.trim().isEmpty())
                 return input;
 
@@ -220,12 +216,12 @@ public class AirportSystem
         {
             System.out.print(prompt);
             String input = scanner.nextLine().trim().toLowerCase();
-            
+
             if (input.equals("true"))
                 return true;
             if (input.equals("false"))
                 return false;
-            
+
             System.out.println("  [輸入錯誤] 請輸入 true 或 false！\n");
         }
     }
