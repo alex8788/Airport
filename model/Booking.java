@@ -4,15 +4,20 @@ public class Booking
 {
     private final String name;  // 購票者姓名
     private final String passportNum;  // 護照號碼
-    private final String flightNum; // 航班編號
+    private final Flight flight;  // 航班物件
     private final CabinClass cabinClass;  // 艙等
 
-    public Booking(String name, String passportNum, String flightNum, CabinClass cabinClass)
+    public Booking(String name, String passportNum, Flight flight, CabinClass cabinClass)
     {
         this.name = name;
         this.passportNum = passportNum;
-        this.flightNum = flightNum;
+        this.flight = flight;
         this.cabinClass = cabinClass;
+    }
+
+    public Flight getFlight() // 修正：回傳航班物件
+    {
+        return flight;
     }
 
     public String getName()
@@ -23,11 +28,6 @@ public class Booking
     public String getPassportNum()
     {
         return passportNum;
-    }
-
-    public String getFlightNum()
-    {
-        return flightNum;
     }
 
     public CabinClass getCabinClass()

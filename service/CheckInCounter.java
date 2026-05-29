@@ -13,12 +13,10 @@ import model.Passenger;
 
 public class CheckInCounter implements Processable
 {
-    private final Flight[] flights; // 航班陣列
     private final List<Booking> bookings; // 訂票紀錄
 
-    public CheckInCounter(Flight[] flights, List<Booking> bookings)
+    public CheckInCounter(List<Booking> bookings)
     {
-        this.flights = flights;
         this.bookings = bookings;
     }
 
@@ -39,7 +37,7 @@ public class CheckInCounter implements Processable
         System.out.println("  [地勤報到系統] 查獲訂票紀錄！旅客姓名：" + booking.getName() + "，艙等：" + booking.getCabinClass());
 
         // 取得旅客所屬的航班
-        Flight flight = findFlight(booking.getFlightNum());
+        Flight flight = booking.getFlight();
 
         // 2. 行李託運
         Baggage baggage = passenger.getBaggage();
@@ -62,22 +60,12 @@ public class CheckInCounter implements Processable
         flight.printSeatMap(newSeat);
 
         // 4. 生成登機證並發放給旅客
-        BoardingPass pass = new BoardingPass(booking.getFlightNum(), booking.getCabinClass(), booking.getName());
+        BoardingPass pass = new BoardingPass(flight, booking.getCabinClass(), booking.getName());
         pass.assignSeat(newSeat);
         pass.setState(BoardingPassState.CHECKED_IN);
         passenger.setBoardingPass(pass);
 
         System.out.println("  [地勤報到系統] 報到完成！已發放登機證。座位：" + pass.getSeatId() + "，狀態更新為：CHECKED_IN\n");
-    }
-
-    // 新增私有方法：尋找航班
-    private Flight findFlight(String flightNum)
-    {
-        for (Flight f : flights)
-        {
-            if (f.getNumber().equals(flightNum)) return f;
-        }
-        throw new AirportException("報到櫃檯失敗：找不到編號 [" + flightNum + "] 的航班！");
     }
 
     // 查詢旅客訂票紀錄

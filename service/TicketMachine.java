@@ -44,7 +44,7 @@ public class TicketMachine
         String passportNum = readString("請輸入護照號碼: ");
 
         // 4. 產生訂位紀錄
-        bookings.add(new Booking(name, passportNum, selected.getNumber(), cabin));
+        bookings.add(new Booking(name, passportNum, selected, cabin));
 
         System.out.println("\n[自助購票機] 購票成功！已將您的訂位資訊加入系統。");
         System.out.println("=============================================\n");

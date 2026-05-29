@@ -9,7 +9,6 @@ import java.util.Scanner;
 import model.Baggage;
 import model.BoardingPass;
 import model.Booking;
-import model.CabinClass;
 import model.Flight;
 import model.Passenger;
 import model.Passport;
@@ -73,9 +72,6 @@ public class AirportSystem
             flights[i] = new Flight(r.name(), r.destination, LocalTime.of(hr, min), r.duration);
             flights[i].preOccupySeats(30); // 提早為每班飛機預先佔位
         }
-
-        bookings.add(new Booking("林小華", "A11223344", flights[1].getNumber(), CabinClass.BUSINESS));
-        bookings.add(new Booking("陳阿明", "B99887766", flights[2].getNumber(), CabinClass.FIRST));
     }
 
     // 輸入旅客資訊, 初始化旅客物件
@@ -106,9 +102,9 @@ public class AirportSystem
     // 初始化機場關卡, 讓旅客進行通關流程
     private static void runAirportFlow(Passenger passenger)
     {
-        Processable counter = new CheckInCounter(flights, bookings);
+        Processable counter = new CheckInCounter(bookings);
         Processable security = new SecurityCheck();
-        Processable gate = new BoardingGate(flights);
+        Processable gate = new BoardingGate();
 
         // 集中攔截機場通關異常
         try
@@ -138,7 +134,7 @@ public class AirportSystem
     private static void showPass(Passenger passenger)
     {
         BoardingPass pass = passenger.getBoardingPass();
-        Flight flight = getFlight(pass.getFlightNum());
+        Flight flight = pass.getFlight();
 
         System.out.println("\n=============================================");
         System.out.println("       [桃園國際機場 (TPE) 離境通關系統]       ");
@@ -147,16 +143,6 @@ public class AirportSystem
         System.out.printf(" 航班編號: %-10s | 目的地: %s%n", flight.getNumber(), flight.getDestination());
         System.out.printf(" 登機時間: %-10s | 起飛時間: %s%n", flight.getBoardingTime(), flight.getDepartureTime());
         System.out.println("=============================================\n");
-    }
-
-    // 輔助函式：取得航班物件
-    private static Flight getFlight(String flightNum)
-    {
-        for (Flight f : flights)
-        {
-            if (f.getNumber().equals(flightNum)) return f;
-        }
-        return null;
     }
 
     // 輔助函式：系統訊息的停頓
