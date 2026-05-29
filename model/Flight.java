@@ -42,8 +42,16 @@ public class Flight
         this.boardedPassengers = new ArrayList<>();
         this.occupiedSeats = new HashSet<>();
     }
+    
+    // 輔助函式：隨機生成座位編號
+    private String generateRandomSeat()
+    {
+        int row = RANDOM.nextInt(MAX_ROWS) + 1;
+        String letter = SEAT_LETTERS[RANDOM.nextInt(SEAT_LETTERS.length)];
+        return row + letter;
+    }
 
-    // 分配一個空的座位
+    // 隨機劃位
     public String assignRandomSeat()
     {
         String newSeat;
@@ -51,9 +59,7 @@ public class Flight
         // 只要座位被佔用，就重新生成
         do
         {
-            int row = RANDOM.nextInt(MAX_ROWS) + 1;
-            String letter = SEAT_LETTERS[RANDOM.nextInt(SEAT_LETTERS.length)];
-            newSeat = row + letter;
+            newSeat = generateRandomSeat();
         }
         while (occupiedSeats.contains(newSeat));
 
@@ -69,7 +75,7 @@ public class Flight
         System.out.println("  [航站廣播] 航班 " + number + " 旅客：" + passenger.getName() + " 已順利登機。");
     }
 
-    // 分配其他旅客的座位 (預設 60 個)
+    // 分配其他旅客的座位
     public void preOccupySeats(int count)
     {
         while (occupiedSeats.size() < count)

@@ -71,13 +71,9 @@ public class CheckInCounter implements Processable
     // 查詢旅客訂票紀錄
     private Booking findBooking(String passportNum)
     {
-        for (Booking b : bookings)
-        {
-            if (b.getPassportNum().equals(passportNum))
-            {
-                return b;
-            }
-        }
-        throw new AirportException("報到櫃檯失敗：找不到護照號碼 [" + passportNum + "] 的訂票紀錄！");
+        return bookings.stream()
+                .filter(b -> b.getPassportNum().equals(passportNum))
+                .findFirst()
+                .orElseThrow(() -> new AirportException("報到櫃檯失敗：找不到護照號碼 [" + passportNum + "] 的訂票紀錄！"));
     }
 }
